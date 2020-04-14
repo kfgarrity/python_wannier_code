@@ -265,7 +265,7 @@ class wan_ham:
         kmat = np.tile(k, (nr,1))
 
         
-        exp_ikr = np.exp(-1.0j*2*np.pi* np.sum(kmat*self.R, 1))
+        exp_ikr = np.exp(1.0j*2*np.pi* np.sum(kmat*self.R, 1))
 
         temp = np.zeros(self.nwan**2, dtype=complex)
         for i in range(nr):
@@ -308,7 +308,7 @@ class wan_ham:
 #        print 'kmat.shape',kmat.shape
 #        print 'self.R.shape', self.R.shape
 
-        exp_ikr = np.exp(-1.0j*2*np.pi* np.sum(kmat*self.R, 1))
+        exp_ikr = np.exp(1.0j*2*np.pi* np.sum(kmat*self.R, 1))
 
         temp = sps.csc_matrix((1,self.nwan**2), dtype=complex)
         for i in range(nr):
