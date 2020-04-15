@@ -1,0 +1,11 @@
+python example_bi2se3.py
+
+Will run bulk bi2se3 and several surface calculations with a 1x1x6 and 1x1x10 surfaces
+
+Exercises:
+
+ - Find the splitting the Dirac code at Gamma as a function of layers
+
+ - Show that the supercell without a surface has no gap states
+
+ - Show that the non-SOC hamiltonian goesn't give a surface state
