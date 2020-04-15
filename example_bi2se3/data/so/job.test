@@ -1,0 +1,41 @@
+#!/bin/bash
+#SBATCH -J v2so
+#SBATCH -t 330:10:00
+#SBATCH -o test.log
+#SBATCH --ntasks-per-node=16
+#SBATCH -p mml
+
+##cd /home/kfg/test_dir
+##cd /wrk/kfg/test_dir
+
+module unload openmpi/2.1.0/intel-15
+module load intel/2015 
+module load openmpi/1.10.2/intel-15
+
+cp INCAR.scf INCAR
+
+mpirun /home/kfg/codes/vasp_ncl
+
+cp OSZICAR OSZICAR.scf
+cp OUTCAR OUTCAR.scf
+
+cp INCAR.wan INCAR
+
+/home/kfg/codes/vasp_ncl
+
+cp OSZICAR OSZICAR.nscf
+cp OUTCAR OUTCAR.nscf
+
+ef=`grep "E-fermi" OUTCAR | awk '{print $3}'`
+
+ef3=`echo "scale=6; $ef + 3.0" | bc -l`
+
+cp wannier90.win wannier90.win.old
+
+sed "s/XXX/$ef3/" < wannier90.win.old | sed "s/#//g" > wannier90.win
+
+
+/home/kfg/codes/wannier90.x wannier90
+
+touch done
+
