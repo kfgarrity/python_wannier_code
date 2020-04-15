@@ -1707,9 +1707,11 @@ class ham_ops:
         print 'TIME SUPERCELL', t1-t0, t2-t1, t3-t2
         return hbig
 
-    def get_orbitals(self,projection_info, desired_orbitals, so=False):
+    def get_orbitals(self,projection_info, desired_orbitals, so=False, NCELLS=1, surfaceonly=False):
         #projection_info example for Bi2Se3 with s and p orbital projections
         #[["Bi", 2, ["s","p"]], ["Se", 3, ["s","p"]]]
+        #NCELLS for supercells
+        #surface only assumes 1x1 surface
 
         #orbitals wanted example
         #[["Bi"]]   all Bi orbitals
@@ -1812,6 +1814,25 @@ class ham_ops:
                 new_orbs = projection_dict[tuple(d)]
                 inds += new_orbs
 
-        return inds
+        if NCELLS > 1 and surfaceonly == False:
+
+            inds_super = []
+            for n in range(NCELLS):
+                for i in inds:
+                    inds_super.append(i+ n * nwan)
+
+            return inds_super
+
+        elif NCELLS > 1 and surfaceonly == True:
+            inds_super = []
+            for n in [0, NCELLS-1]:
+                for i in inds:
+                    inds_super.append(i+ n * nwan)
+
+            return inds_super
+
+            
+        else:
+            return inds
                 
             
