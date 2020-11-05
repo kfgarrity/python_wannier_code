@@ -18,7 +18,7 @@ class ham_ops:
 
     def __init__(self):
 
-        print 'ham_ops'
+        print( 'ham_ops')
         self.num_k = 50
         
 
@@ -37,21 +37,21 @@ class ham_ops:
 
 
 #        t1=time.time()
-#        print 'unfold inner time SOLVE', t1-t0
+#        print( 'unfold inner time SOLVE', t1-t0)
 #        t0=t1
         
-#        print 'kprim', kprim, Kss
-#        print 'val_prim'
-#        print val_prim
-#        print 'val_ss'
-#        print val_ss
-#        print
-#        print 'vect_prim'
-#        print vect_prim
-#        print
-#        print 'vect_ss'
-#        print vect_ss
-#        print
+#        print( 'kprim', kprim, Kss)
+#        print( 'val_prim')
+#        print( val_prim)
+#        print( 'val_ss')
+#        print( val_ss)
+#        print()
+#        print( 'vect_prim')
+#        print( vect_prim)
+#        print()
+#        print( 'vect_ss')
+#        print( vect_ss)
+#        print()
 
         ss = np.zeros((np.prod(supercell),3), dtype=float)
         c=0
@@ -69,7 +69,7 @@ class ham_ops:
             r.append(range(ham_prim.nwan*i, ham_prim.nwan*(i+1))) #i
 
 #        t1=time.time()
-#        print 'unfold inner time EXP_ijk', t1-t0
+#        print( 'unfold inner time EXP_ijk', t1-t0)
 #        t0=t1
 
         vect_prim_ss = np.zeros((ham_prim.nwan, vect_ss.shape[0]), dtype=complex)
@@ -79,7 +79,7 @@ class ham_ops:
                 vect_prim_ss[n,r[i]] = vect_prim[n,:]*exp_ikr[i]
                 
 #        t1=time.time()
-#        print 'unfold inner time vect_prim_ss', t1-t0
+#        print( 'unfold inner time vect_prim_ss', t1-t0)
 #        t0=t1
         
 
@@ -112,13 +112,13 @@ class ham_ops:
         P = P / np.prod(supercell)
 
 #        t1=time.time()
-#        print 'unfold inner time FOLDING', t1-t0
+#        print( 'unfold inner time FOLDING', t1-t0)
 #        t0=t1
 
         
-#        print 'P'
-#        print P
-#        print '-'
+#        print( 'P')
+#        print( P)
+#        print( '-')
                 
         return P, val_prim, val_ss
 
@@ -133,8 +133,8 @@ class ham_ops:
         K = self.generate_kpath(kpath)
     
         nk=len(K)
-        print 'nktot', nk
-        print
+        print( 'nktot', nk)
+        print()
 
         t0=time.time()
         
@@ -153,7 +153,7 @@ class ham_ops:
 
 
         t1=time.time()
-        print 'unfold time', t1-t0
+        print( 'unfold time', t1-t0)
         t0=t1
         
         if yrange is not None:
@@ -162,7 +162,7 @@ class ham_ops:
             yrange = [np.min(np.min(vals_prim))-0.01, np.max(np.max(vals_prim))+0.01 ]
             d = (yrange[1]-yrange[0])*0.05
 
-        print 'yrange', yrange
+        print( 'yrange', yrange)
             
 
         #compute spectral function
@@ -190,7 +190,7 @@ class ham_ops:
         N_start = max(N_start,0)
         N_end = min(N_end, ham_ss.nwan)
         
-        print 'Nstart, Nend', N_start,N_end,max_band[N_start],min_band[N_end-1]
+        print( 'Nstart, Nend', N_start,N_end,max_band[N_start],min_band[N_end-1])
                 
         for i,k in enumerate(K):
             for j in range(num_energies):
@@ -209,14 +209,14 @@ class ham_ops:
 
 
         t1=time.time()
-        print 'unfold make image time', t1-t0
+        print( 'unfold make image time', t1-t0)
         t0=t1
 
         limits = (0,nk-1,yrange[0], yrange[1])
         self.plot_image(image, limits, names, pdfname=pdfname)
 
         t1=time.time()
-        print 'unfold plot image time', t1-t0
+        print( 'unfold plot image time', t1-t0)
         t0=t1
         
         return image, limits
@@ -346,11 +346,11 @@ class ham_ops:
                     phi = phi + 2*np.pi
                     
                 if abs(phi)/(2*np.pi) > 0.5:
-                    print 'WARNING in chern calculation, phi', c1, c2, phi, ' try more k-points'
-                    print 'activate recursive'
+                    print( 'WARNING in chern calculation, phi', c1, c2, phi, ' try more k-points')
+                    print( 'activate recursive')
 
                     K1 = np.zeros((3,3,3),dtype=float)
-                    print 'K1'
+                    print( 'K1')
                     for c1a in range(3):
                         for c2a in range(3):                        
                             K1[c1a,c2a,:] = K[c1,c2,:] + k1 * float(c1a)/float(nk1)/2.0 + k2 * float(c2a)/float(nk2)/2.0
@@ -358,7 +358,7 @@ class ham_ops:
                                 if abs(K1[c1a,c2a,i]-1.0) < 1e-5:
                                     K1[c1a,c2a,i]=0.0
                             
-                            print c1a, c2a, K1[c1a,c2a,:]
+                            print( c1a, c2a, K1[c1a,c2a,:])
 
                     ctemp, gap_min_t, val_max_t, cond_min_t = self.chern_number_simple(ham,nocc, k1,k2, 2,2, Kmat=K1, usemod=False)
                     gap_min=min(gap_min,gap_min_t)
@@ -369,7 +369,7 @@ class ham_ops:
 
                     add_int = round(ctemp - phi_temp )
 
-#                    print 'ctemp', ctemp, phi_temp, phi_temp+add_int, add_int
+#                    print( 'ctemp', ctemp, phi_temp, phi_temp+add_int, add_int)
                     
                     Chern += phi_temp+add_int
                     
@@ -383,8 +383,8 @@ class ham_ops:
             
 
                    
-#        print 'minimum direct gap', gap_min, 'indirect gap', cond_min-val_max
-        print 'minimum_direct_gap', gap_min, 'indirect_gap', cond_min-val_max, ' direct_gap_avg2 ', gap_min2
+#        print( 'minimum direct gap', gap_min, 'indirect gap', cond_min-val_max)
+        print( 'minimum_direct_gap', gap_min, 'indirect_gap', cond_min-val_max, ' direct_gap_avg2 ', gap_min2)
         
         direct_gap = gap_min
         indirect_gap = cond_min-val_max
@@ -410,7 +410,7 @@ class ham_ops:
 #                    phi = phi + 2*np.pi
 #                    
 #                if abs(phi) > 0.75:
-#                    print 'WARNING in chern calculation, phi', c1, c2, phi, ' try more k-points'
+#                    print( 'WARNING in chern calculation, phi', c1, c2, phi, ' try more k-points')
 #                    
 #                Chern += phi / (2.0*np.pi)
 
@@ -427,7 +427,7 @@ class ham_ops:
             k1=np.array(k1,dtype=float)
             k2=np.array(k2,dtype=float)
 
-            #        print 'K'
+            #        print( 'K')
 
             for c1 in range(nk1):
                 for c2 in range(nk2):
@@ -437,9 +437,9 @@ class ham_ops:
             K = Kmat
             
                     
-                #                print c1, c2, 'K', K[c1,c2,:]
+                #                print( c1, c2, 'K', K[c1,c2,:])
 
-                #        print
+                #        print()
 
         if usemod:
 
@@ -468,8 +468,8 @@ class ham_ops:
                 k=K[c1,c2,:]
                 val, vect,p = ham.solve_ham(k,proj=None)
                 VECT[c1,c2,:,:] = vect
-                #                print 'val'
-                #                print val
+                #                print( 'val')
+                #                print( val)
                 if (val[nocc]-val[nocc-1]) < gap_min:
                     gap_min = val[nocc]-val[nocc-1]
 
@@ -490,7 +490,7 @@ class ham_ops:
 #                   cond_min_p1 = val[nocc+1]
                    
                    
-        print 'minimum_direct_gap', gap_min, 'indirect_gap', cond_min-val_max
+        print( 'minimum_direct_gap', gap_min, 'indirect_gap', cond_min-val_max)
         direct_gap = gap_min
         indirect_gap = cond_min-val_max
         
@@ -519,7 +519,7 @@ class ham_ops:
                     phi = phi + 2*np.pi
                     
                 if abs(phi) > 0.75:
-                    print 'WARNING in chern calculation, phi', c1, c2, phi, ' try more k-points'
+                    print( 'WARNING in chern calculation, phi', c1, c2, phi, ' try more k-points')
                     
                 Chern += phi / (2.0*np.pi)
 
@@ -547,7 +547,7 @@ class ham_ops:
             for j in range(self.num_k):
                 K.append(np.array(kpath[i]) + dk * (float(j)/float(self.num_k)))
 
-                #                print np.array(kpath[i]) + dk * (float(j)/float(self.num_k))
+                #                print( np.array(kpath[i]) + dk * (float(j)/float(self.num_k)))
                 
         K.append(kpath[-1])
 
@@ -558,8 +558,8 @@ class ham_ops:
         K = self.generate_kpath(kpath)
 
         nk=len(K)
-        print 'nktot', nk
-        print
+        print( 'nktot', nk)
+        print()
         
         nwan = ham.nwan
 
@@ -577,7 +577,7 @@ class ham_ops:
 
         
         for i,k in enumerate(K):
-            #            print k
+            #            print( k)
 
             if ham.sparse:
                 val, vect,p = ham.solve_ham_sparse(k,nbands, fermi=fermi, proj=proj)
@@ -620,9 +620,9 @@ class ham_ops:
         else:
 
             X = np.tile(x.T, (nbands,1)).T
-#            print x.shape
-#            print vals.shape
-#            print projs.shape
+#            print( x.shape)
+#            print( vals.shape)
+#            print( projs.shape)
             #            for i in range(nwan):
 
             if not ham.sparse:
@@ -685,8 +685,8 @@ class ham_ops:
             nocc = [nocc]
 
         nk = len(K)
-        print kmesh, nk
-        print
+        print( kmesh, nk)
+        print()
         VAL = []
         for i,k in enumerate(K):
             val, vect,p = ham.solve_ham(k,proj=None)
@@ -694,13 +694,13 @@ class ham_ops:
 
         VAL = np.array(VAL)
 
-        print VAL.shape
+        print( VAL.shape)
 
 
-#        print 'start end', start, end
+#        print( 'start end', start, end)
 
         FERMI  = []
-        print 'nocc,  fermi'
+        print( 'nocc,  fermi')
         for no in nocc:
 
             if no >= 1:
@@ -718,14 +718,14 @@ class ham_ops:
                 mid = (start+end)/2.0
                 n, en = self.fd(VAL[:], mid, temp)
                 n = n / float(nk)
-#                print i,'search fermi', mid, n
+#                print( i,'search fermi', mid, n)
                 if n > no:
                     end = mid
                 else:
                     start = mid
-            print no, "\t", mid
+            print( no, "\t", mid)
             FERMI.append(mid)
-        print
+        print()
 
         ENERGY = []
         for no, fermi in zip(nocc, FERMI):
@@ -745,6 +745,124 @@ class ham_ops:
                     t.append([float(i)/(float(grid[0])) , float(j)/(float(grid[1])), float(k)/(float(grid[2]))])
         return t
 
+
+    def fermi_surf_2d(self, ham, fermi, origin, k1, k2, nk1, nk2, sig):
+        K = np.zeros((nk1,nk2, 3),dtype=float)
+
+        k1=np.array(k1,dtype=float)
+        k2=np.array(k2,dtype=float)
+
+        for c1 in range(nk1):
+            for c2 in range(nk2):
+                K[c1,c2,:] = origin + k1 * float(c1)/float(nk1) + k2 * float(c2)/float(nk2)
+
+
+#        VALS = np.zeros((nk1,nk2, ham.nwan))
+        IMAGE = np.zeros((nk1, nk2))
+
+        for c1 in range(nk1):
+            for c2 in range(nk2):
+                k = K[c1,c2,:]
+                val, vect,p = ham.solve_ham(k,proj=None)
+
+                #VALS[nk1, nk2, :] = val
+
+                #                IMAGE[c1,c2] = np.sum(np.abs(1/(val - fermi + sig)))
+                IMAGE[c1,c2] = np.sum( np.exp( -(val - fermi)**2 / sig**2))
+
+        return IMAGE
+
+    def find_nodes(self, ham, num_occ, origin=[-0.5,-0.5,-0.5], k1=[1,0,0],k2=[0,1,0],k3=[0,0,1], nk1=20, nk2=20, nk3=20,sig=[0.01, 0.02, 0.05, 0.1, 0.2,0.3], thresh=0.3):
+
+        K = np.zeros((nk1*4,nk2*4,nk3*4,3),dtype=float)
+
+        k1=np.array(k1,dtype=float)
+        k2=np.array(k2,dtype=float)
+        k3=np.array(k3,dtype=float)
+
+        for c1 in range(4*nk1):
+            for c2 in range(4*nk2):
+                for c3 in range(4*nk3):
+                    K[c1,c2,c3,:] = origin + k1 * float(c1)/float(nk1*4) + k2 * float(c2)/float(nk2*4) + k3 * float(c3)/float(nk3*4) 
+
+
+                    #        VALS = np.zeros((nk1,nk2, ham.nwan))
+
+
+                    
+        IMAGE = np.zeros((nk1*4, nk2*4, nk3*4, len(sig)))
+        DIRECTGAP = np.zeros((nk1*4, nk2*4, nk3*4))
+        DIRECTGAP[:,:,:] = 100.0
+        
+#        sig_0 = 0.2
+
+        #initial pass
+        
+        for c1 in range(0,4*nk1,4):
+            for c2 in range(0,4*nk2,4):
+                for c3 in range(0,4*nk3,4):
+                    k = K[c1,c2,c3,:]
+                    val,vect,p = ham.solve_ham(k,proj=None)
+
+                    d = val[num_occ] - val[num_occ-1]
+                    DIRECTGAP[c1,c2,c3] = d
+                    
+                    #IMAGE[c1,c2,c3,-1] = np.exp( -(d)**2 / sig[-1]**2)
+
+        #second pass
+
+#        maxval = np.max(IMAGE[:,:,:,-1])
+#        thresh = maxval * 0.1
+#        print("thresh ", maxval, thresh)
+        
+        num_thresh = 0
+
+        min_gap = 1000000000.0
+        min_cond = 1000000000.0
+        max_val = -1000000000.0
+        
+        for c1 in range(0,4*nk1,4):
+            for c2 in range(0,4*nk2,4):
+                for c3 in range(0,4*nk3,4):
+                    for c1a in range(4):
+                        for c2a in range(4):
+                            for c3a in range(4):
+
+                                if c1a > 0:
+                                    c1p=(c1+4)%(4*nk1)
+                                else:
+                                    c1p=c1
+                                if c2a > 0:
+                                    c2p=(c2+4)%(4*nk2)
+                                else:
+                                    c2p=c2
+                                if c3a > 0:
+                                    c3p=(c3+4)%(4*nk3)
+                                else:
+                                    c3p=c3
+                                    
+
+                                if DIRECTGAP[c1,c2,c3] < thresh or DIRECTGAP[c1,c2,c3p] < thresh or DIRECTGAP[c1,c2p,c3] < thresh or DIRECTGAP[c1,c2p,c3p] < thresh or DIRECTGAP[c1p,c2,c3] < thresh or DIRECTGAP[c1p,c2,c3p] < thresh or DIRECTGAP[c1p,c2p,c3] < thresh or DIRECTGAP[c1p,c2p,c3p] < thresh :
+#                                if IMAGE[c1,c2,c3,-1] > thresh or IMAGE[c1,c2,c3p,-1] > thresh or IMAGE[c1,c2p,c3,-1] > thresh or IMAGE[c1,c2p,c3p,-1] > thresh or IMAGE[c1p,c2,c3,-1] > thresh or IMAGE[c1p,c2,c3p,-1] > thresh or IMAGE[c1p,c2p,c3,-1] > thresh or IMAGE[c1p,c2p,c3p,-1] > thresh:
+                                    num_thresh += 1
+                                    k = K[c1+c1a,c2+c2a,c3+c3a,:]
+                                    val,vect,p = ham.solve_ham(k,proj=None)
+                                    d = val[num_occ] - val[num_occ-1]
+                                    DIRECTGAP[c1+c1a,c2+c2a,c3+c3a] = d
+                                    min_gap = min(d, min_gap)
+                                    min_cond = min(min_cond, val[num_occ] )
+                                    max_val = max(max_val, val[num_occ-1] )
+                        
+
+        for (cs,s) in enumerate(sig):
+            IMAGE[:,:,:,cs] =  np.exp( -(DIRECTGAP)**2 / s**2)
+                                    
+        print("num thresh " , num_thresh , " out of ", nk1*nk2*nk3*4*4*4)
+        print("min direct gap " , min_gap , " indirect gap  ", min_cond - max_val)
+
+        return IMAGE, DIRECTGAP, [min_gap, min_cond - max_val]
+
+    
     def dos(self,ham, grid, proj=None, fermi=0.0, xrange=None, nenergy=100, sig = 0.02,  pdf="dos.pdf", show=False):
 
         plt.clf()
@@ -762,10 +880,10 @@ class ham_ops:
             pvals[i,:] = p
 
 
-        # print vals
-        # print "pvals"
-        # print pvals
-        print "np.sum pvals ", np.sum(np.sum(pvals))
+        # print( vals)
+        # print( "pvals")
+        # print( pvals)
+        print( "np.sum pvals ", np.sum(np.sum(pvals)))
         
         if xrange is not None:
             
@@ -790,7 +908,7 @@ class ham_ops:
         condmin = np.min(v[v > 0.0])
         valmax = np.max(v[v < 0.0])
 
-        print "DOS BAND GAP " ,  condmin - valmax , "    ", valmax, " " , condmin
+        print( "DOS BAND GAP " ,  condmin - valmax , "    ", valmax, " " , condmin)
 
         c = -0.5/sig**2
         for i in range(np.size(energies)):
@@ -803,9 +921,9 @@ class ham_ops:
         dos = dos / sig / (2.0*np.pi)**0.5  / float(nk)
         if not proj is None:
             pdos = pdos / sig / (2.0*np.pi)**0.5  / float(nk)         
-        print "np.sum(dos) ", np.sum(dos*de)
+        print( "np.sum(dos) ", np.sum(dos*de))
         if not proj is None:
-            print "np.sum(pdos) ", np.sum(pdos*de)
+            print( "np.sum(pdos) ", np.sum(pdos*de))
 
         plt.plot(energies, dos, "b")
         if not proj is None:
@@ -833,11 +951,11 @@ class ham_ops:
 
         m = spin_dir[0] * s_x + spin_dir[1]*s_y + spin_dir[2]*s_z
 
-        print
-        print spin_dir
-        print 'm'
-        print m
-        print
+        print()
+        print( spin_dir)
+        print( 'm')
+        print( m)
+        print()
         
         newh = wan_ham()
         newh.nwan = hup.nwan * 2
@@ -979,13 +1097,13 @@ class ham_ops:
 
         if type(fraction) is  float:
             fraction = [1.0-x, x]
-            print 'fraction', fraction
+            print( 'fraction', fraction)
                 
         if fraction is None:
             fraction = [1.0,1.0]
 
             
-        print 'fraction',fraction            
+        print( 'fraction',fraction            )
         
         newh = wan_ham()
         if sparse:
@@ -1003,8 +1121,8 @@ class ham_ops:
 #        i2 = np.argsort(ind(r2))        
         
 
-#        print 'should be zero if everything matches before reorder', np.sum(np.abs(i1-i2))
-#        print 'should be zero if everything matches after reorder', np.sum(np.sum(np.abs(r1[i1,:]-r2[i2,:])))
+#        print( 'should be zero if everything matches before reorder', np.sum(np.abs(i1-i2)))
+#        print( 'should be zero if everything matches after reorder', np.sum(np.sum(np.abs(r1[i1,:]-r2[i2,:]))))
         
         Rl = len(ind_list)
         
@@ -1027,7 +1145,7 @@ class ham_ops:
 
             i1,i2=ind_list[i]
             
-            #            print 'r1r2', r1[i1[i],:],r2[i2[i],:]
+            #            print( 'r1r2', r1[i1[i],:],r2[i2[i],:])
 
             if sparse:
                 if i1>=0:
@@ -1089,8 +1207,8 @@ class ham_ops:
         i2 = np.argsort(ind(r2))        
         
 
-        print 'should be zero if everything matches before reorder', np.sum(np.abs(i1-i2))
-        print 'should be zero if everything matches after reorder', np.sum(np.sum(np.abs(r1[i1,:]-r2[i2,:])))
+        print( 'should be zero if everything matches before reorder', np.sum(np.abs(i1-i2)))
+        print( 'should be zero if everything matches after reorder', np.sum(np.sum(np.abs(r1[i1,:]-r2[i2,:]))))
         
 
         
@@ -1104,7 +1222,7 @@ class ham_ops:
         h2_temp = np.zeros((nw,nw),dtype=complex)
         for i in range(newh.R.shape[0]):
 
-#            print 'r1r2', r1[i1[i],:],r2[i2[i],:]
+#            print( 'r1r2', r1[i1[i],:],r2[i2[i],:])
             
             h1_temp[:,:] = np.reshape(h1.HR[i1[i],:], (nw,nw))
             h2_temp[:,:] = np.reshape(h2.HR[i2[i],:], (nw,nw))
@@ -1198,7 +1316,7 @@ class ham_ops:
                         if (cut[0] > 0 and cellnew[0] != 0) or (cut[1] > 0 and cellnew[1] != 0) or (cut[2] > 0 and cellnew[2] != 0):
                             continue
                         
-#                        print 'rs', rold, subcell, 'new', cellnew, subnew
+#                        print( 'rs', rold, subcell, 'new', cellnew, subnew)
                         if tuple(cellnew) not in RH_new:
                             if sparse:
                                 RH_new[tuple(cellnew)] = [cellnew, sps.lil_matrix((NWAN,NWAN ),dtype=complex)]
@@ -1211,7 +1329,7 @@ class ham_ops:
                         r1 = subcell_index(subcell)
                         r2 = subcell_index(subnew)
 
-#                        print r1,r2,h_temp.shape, RH_new[tuple(cellnew)][1][r1,r2].shape
+#                        print( r1,r2,h_temp.shape, RH_new[tuple(cellnew)][1][r1,r2].shape)
                         for c1,c2 in enumerate(r1):
                             for d1,d2 in enumerate(r2):
                                 RH_new[tuple(cellnew)][1][c2,d2] += h_temp[c1,d1]
@@ -1247,7 +1365,7 @@ class ham_ops:
 
         t3=time.time()
 
-        print 'TIME SUPERCELL', t1-t0, t2-t1, t3-t2
+        print( 'TIME SUPERCELL', t1-t0, t2-t1, t3-t2)
         return hbig
 
 
@@ -1261,7 +1379,7 @@ class ham_ops:
         for i in range(supercell[0]):
             for j in range(supercell[1]):
                 for k in range(supercell[2]):
-                    print 'ijk', i,j,k, 'magnetic', mag[c]
+                    print( 'ijk', i,j,k, 'magnetic', mag[c])
                     c += 1
                     
         nw = hup.nwan
@@ -1322,7 +1440,7 @@ class ham_ops:
                         if (cut[0] > 0 and cellnew[0] != 0) or (cut[1] > 0 and cellnew[1] != 0) or (cut[2] > 0 and cellnew[2] != 0):
                             continue
                         
-#                        print 'rs', rold, subcell, 'new', cellnew, subnew
+#                        print( 'rs', rold, subcell, 'new', cellnew, subnew)
                         if tuple(cellnew) not in RH_new:
                             if not sparse:
                                 RH_new[tuple(cellnew)] = [cellnew, np.zeros((NWAN,NWAN ),dtype=complex)]
@@ -1368,7 +1486,7 @@ class ham_ops:
                         r1 = subcell_index(subcell)
                         r2 = subcell_index(subnew)
 
-#                        print r1,r2,h_temp.shape, RH_new[tuple(cellnew)][1][r1,r2].shape
+#                        print( r1,r2,h_temp.shape, RH_new[tuple(cellnew)][1][r1,r2].shape)
                         for c1,c2 in enumerate(r1):
                             for d1,d2 in enumerate(r2):
                                 RH_new[tuple(cellnew)][1][c2,d2] += h_temp[c1,d1]
@@ -1404,7 +1522,7 @@ class ham_ops:
 
     def plot_eigenvector(self, ham, nocc, pos_orig, A, supercell, view,atom_dict = None,colors=None, kpoint=[0,0,0], vect=None, pdfname='vect.pdf', fermi=fermi, sparse=False):
 
-        print 'supercell plot_eigenvector', supercell
+        print( 'supercell plot_eigenvector', supercell)
         
         nwan_small = ham.nwan / np.prod(supercell)
         pos_orig = np.array(pos_orig)
@@ -1422,21 +1540,21 @@ class ham_ops:
         if vect is None:
 
             if sparse:
-                print 'using sparse'
+                print( 'using sparse')
                 if type(nocc) == int:
                     val, vect, _ = ham.solve_ham_sparse(kpoint, nocc, fermi=fermi, proj=None)
                 else:
                     val, vect, _ = ham.solve_ham_sparse(kpoint, len(nocc), fermi=fermi, proj=None)
                     
-                print 'val sparse', val
+                print( 'val sparse', val)
                 
             else:
                 val, vect, _ = ham.solve_ham(kpoint)
 
-                print 'val.shape', val.shape
-                print 'vall occ'
-                print val[nocc]
-                print 'vect.shape', vect.shape
+                print( 'val.shape', val.shape)
+                print( 'vall occ')
+                print( val[nocc])
+                print( 'vect.shape', vect.shape)
 
         if sparse:
             v2 = np.sum((vect[:,:]*vect[:,:].conj()).real, 1)
@@ -1448,18 +1566,18 @@ class ham_ops:
                 v2 = np.sum((vect[:,nocc]*vect[:,nocc].conj()).real, 1)
             
         
-        print 'v2.shape', v2.shape
+        print( 'v2.shape', v2.shape)
 
 #        nat = len(atom_dict)
         nat = pos_orig.shape[0]
         
-        print 'nat', nat
+        print( 'nat', nat)
         
         xyzV = np.zeros((nat*np.prod(supercell), 4),dtype=float)
 
         unique_colors = list(set(colors))
 
-        print 'unique_colors', unique_colors
+        print( 'unique_colors', unique_colors)
         COLORS = []
         for i in range(len(unique_colors)):
             COLORS.append([])
@@ -1472,7 +1590,7 @@ class ham_ops:
                     for n in range(nwan_small):
                         
                         at = atom_dict[n]
-                        print 'ssnum at', ssnum, at, [x,y,z], n, 'ind', ssnum+at
+                        print( 'ssnum at', ssnum, at, [x,y,z], n, 'ind', ssnum+at)
                         xyzV[ssnum+at,0:3] = np.dot((pos_orig[at,:]+ np.array([x,y,z])), A)
                         xyzV[ssnum+at,3] += v2[c]
 
@@ -1483,10 +1601,10 @@ class ham_ops:
                         c+=1
 
 
-        print 'xyzV'
+        print( 'xyzV')
         for i in range(xyzV.shape[0]):
-            print xyzV[i,:]
-        print
+            print( xyzV[i,:])
+        print()
 
         vsize_scaled = xyzV[:,3] / np.max(xyzV[:,3]) * 30.0
         
@@ -1538,7 +1656,7 @@ class ham_ops:
 #                subcell[i] = r[i]%supercell[i]
 #
 #            conversion[ii] = [rnew,subcell]
-#            print ii, 'r', r, 'rnew', rnew,subcell
+#            print( ii, 'r', r, 'rnew', rnew,subcell)
 #            rnew_set.add(tuple(rnew.tolist()))
 #            if tuple(rnew.tolist()) not in rnew_index:
 #                rnew_index[tuple(rnew.tolist())] = rn
@@ -1574,13 +1692,13 @@ class ham_ops:
 #                        block2 = t[0]*supercell[1]*supercell[2] + t[1]*supercell[2] + t[2]
 #
 #
-#                        print 'asdf', ii, rnew, subcell,'b1',[i,j,k], block1, 't', t, block2
+#                        print( 'asdf', ii, rnew, subcell,'b1',[i,j,k], block1, 't', t, block2)
 #                        
 #                        wan1 = np.array(range(0,h.nwan),dtype=int)+block1*h.nwan
 #                        wan2 = np.array(range(0,h.nwan),dtype=int)+block2*h.nwan                        
 #
-#                        #                        print 'w1', wan1
-#                        #                        print 'w2', wan2
+#                        #                        print( 'w1', wan1)
+#                        #                        print( 'w2', wan2)
 #                        for c1,w1 in enumerate(wan1):
 #                            for c2,w2 in enumerate(wan2):
 #                                HR_temp[ind,w1,w2] = h_temp[c1,c2]
@@ -1590,9 +1708,9 @@ class ham_ops:
 #        for i in range(HR_temp.shape[0]):
 #            hbig.HR[i,:] = np.reshape(HR_temp[i,:,:], NWAN*NWAN)
 #
-#            print hbig.R[i,:]
-#            print HR_temp[i,:,:]
-#            print
+#            print( hbig.R[i,:])
+#            print( HR_temp[i,:,:])
+#            print()
 #            
 #
 #        return  hbig
@@ -1655,7 +1773,7 @@ class ham_ops:
 
                         t1b=time.time()
                         
-#                        print 'rs', rold, subcell, 'new', cellnew, subnew
+#                        print( 'rs', rold, subcell, 'new', cellnew, subnew)
                         if tuple(cellnew) not in RH_new:
 #                            RH_new[tuple(cellnew)] = [cellnew, sps.csc_matrix((NWAN,NWAN ),dtype=complex)]
                             RH_new[tuple(cellnew)] = [cellnew, sps.lil_matrix((NWAN,NWAN ),dtype=complex)]
@@ -1670,7 +1788,7 @@ class ham_ops:
                         r1 = subcell_index(subcell)
                         r2 = subcell_index(subnew)
 
-#                        print r1,r2,h_temp.shape, RH_new[tuple(cellnew)][1][r1,r2].shape
+#                        print( r1,r2,h_temp.shape, RH_new[tuple(cellnew)][1][r1,r2].shape)
                         for c1,c2 in enumerate(r1):
                             for d1,d2 in enumerate(r2):
                                 RH_new[tuple(cellnew)][1][c2,d2] += h_temp[c1,d1]
@@ -1703,8 +1821,8 @@ class ham_ops:
 
 
         t3=time.time()
-        print 'TIME SUPERCELL INNER', a, b, ct, d
-        print 'TIME SUPERCELL', t1-t0, t2-t1, t3-t2
+        print( 'TIME SUPERCELL INNER', a, b, ct, d)
+        print( 'TIME SUPERCELL', t1-t0, t2-t1, t3-t2)
         return hbig
 
     def get_orbitals(self,projection_info, desired_orbitals, so=False, NCELLS=1, surfaceonly=False):
@@ -1728,8 +1846,8 @@ class ham_ops:
 
         projection_dict = {}
 
-        print "get_orbs ", so
-        print projection_info
+        print( "get_orbs ", so)
+        print( projection_info)
                 
         for proj in projection_info:
 
@@ -1801,7 +1919,7 @@ class ham_ops:
                     new_ind.append(i+nwan)
                 projection_dict[(atom, orb)] += new_ind
             nwan = nwan * 2
-        print "nwan = ", nwan
+        print( "nwan = ", nwan)
         
         inds = []
         for d in desired_orbitals:

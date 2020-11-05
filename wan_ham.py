@@ -16,9 +16,8 @@ class wan_ham:
     def __init__(self,filename=None):
 
 
-        print 'initializing wan_ham'
-        print
-        
+        print('initializing wan_ham')
+        print(        )
         if filename is not None:
             self.load(filename)
         self.sparse=False
@@ -30,18 +29,18 @@ class wan_ham:
         alllines = f.readlines()
         f.close()
         
-        print alllines[0]
+        print(alllines[0])
 
         self.nwan = int(alllines[1].split()[0])
         self.nr   = int(alllines[2].split()[0])
 
 
         if self.nr%15 == 0:
-            lines_r = int(math.floor(self.nr / 15) )
+            lines_r = int(math.floor(self.nr // 15) )
         else:
-            lines_r = int(math.floor(self.nr / 15) + 1)
+            lines_r = int(math.floor(self.nr // 15) + 1)
 
-        print lines_r, self.nr, 
+        print(lines_r, self.nr, )
         
         self.sym_r = np.zeros(self.nr, dtype=float)
 
@@ -53,7 +52,7 @@ class wan_ham:
             end = (i+1)*15
             if end > self.nr:
                 end = self.nr
-            self.sym_r[start:end] = map(float, alllines[num].split())
+            self.sym_r[start:end] = list(map(float, alllines[num].split()))
 
 
         tot = self.nwan**2 * self.nr
@@ -71,11 +70,18 @@ class wan_ham:
         
         for i in range(lines_r+3,lines_r+3+tot):
 
-            rnum = (c)/self.nwan**2
+            rnum = (c)//self.nwan**2
             
-            self.H_int[c,:] = map(int, alllines[i].split()[0:5])
-#            print c, 'H_int', self.H_int[c,:]
+            self.H_int[c,:] = list(map(int, alllines[i].split()[0:5]))
+            #            print(c, 'H_int', self.H_int[c,:])
+
+#            print("x")
+#            print(alllines[i].split())
+#            print(alllines[i].split()[5])
+#            print(alllines[i].split()[6])
+#            print(rnum)
             self.H_val[c] = (float(alllines[i].split()[5]) + 1j * float(alllines[i].split()[6])) / float(self.sym_r[rnum])
+
 #            self.S_val[c] = (float(alllines[i].split()[7]) )/ float(self.sym_r[rnum])
 #            dist.append(np.sum(self.H_int[c,0:3]**2)**0.5)
 
@@ -91,17 +97,16 @@ class wan_ham:
 #        plt.plot(dist, self.S_val, 'g*')
 #        plt.ylim(-3,3)
 #        plt.show()
-#        print self.H_int[0,:]
-#        print self.H_val[0]
+#        print(self.H_int[0,:])
+#        print(self.H_val[0])
 
-#        print self.H_int[-1,:]
-#        print self.H_val[-1]
+#        print(self.H_int[-1,:])
+#        print(self.H_val[-1])
         
-        print 'loaded ', filename
-        print 'nwan: ', self.nwan
-        print 'nr:   ', self.nr
-        print
-        
+        print('loaded ', filename)
+        print('nwan: ', self.nwan)
+        print('nr:   ', self.nr)
+        print(        )
 
         #reshape
 
@@ -118,7 +123,7 @@ class wan_ham:
         iy = ny2-ny1+1
         iz = nz2-nz1+1
 
-        print 'H size', ix,iy,iz,self.nwan,self.nwan
+        print('H size', ix,iy,iz,self.nwan,self.nwan)
         
         self.H = np.zeros((ix,iy,iz,self.nwan,self.nwan),dtype=complex)
 #        self.S = np.zeros((ix,iy,iz,self.nwan,self.nwan),dtype=float)
@@ -165,10 +170,10 @@ class wan_ham:
 #                    plt.plot((ind[0]**2+ind[1]**2+ind[2]**2)**0.5, HRo[x,y,z,0,0].real, 'c.')
 #                    
 #        plt.show()
-#        print Sk.shape, Hk.shape
+#        print(Sk.shape, Hk.shape)
 #        exit()
         
-        print 'done reshaping1'
+        print('done reshaping1')
 
         nr = ix*iy*iz
         self.R = np.zeros((nr,3),dtype=float)
@@ -187,9 +192,9 @@ class wan_ham:
                     c+=1
 
         if c != nr:
-            print 'errror ', c, nr
+            print('errror ', c, nr)
 
-    def trim(self):
+    def trim(self, val=5e-3):
 
         Rnew = np.zeros(self.R.shape,dtype=float)
         if self.sparse:
@@ -202,7 +207,7 @@ class wan_ham:
         oldsize=self.R.shape[0]
         
         for i in range(self.R.shape[0]):
-            if np.max(np.abs(self.HR[i,:])) > 5e-3:
+            if np.max(np.abs(self.HR[i,:])) > val:
                 Rnew[c,:] = self.R[i,:]                
                 if self.sparse:
                     HRnew[c,:] = sps.lil_matrix(self.HR[i,:])
@@ -214,7 +219,7 @@ class wan_ham:
         self.R = Rnew[0:c,:]
         self.HR = HRnew[0:c,:]
 
-        print 'trimmed', oldsize, c
+        print('trimmed', oldsize, c)
         
     def get_ind(self,nxyz):
 
@@ -255,7 +260,7 @@ class wan_ham:
     def solve_ham(self,k, proj=None):
 
 
-#        print 'solve', self.nwan, self.R.shape, self.HR.shape
+#        print('solve', self.nwan, self.R.shape, self.HR.shape)
         
         nr = self.R.shape[0]
         
@@ -276,19 +281,19 @@ class wan_ham:
         hk = (hk + hk.T.conj())/2.0
 
         
-#        print "hk ", k
-#        print hk
+#        print("hk ", k)
+#        print(hk)
         
         tb = time.time()
         val, vect = np.linalg.eigh(hk)
-#        print 'TIME eig dense', time.time()-tb
+#        print('TIME eig dense', time.time()-tb)
 
         if proj is not None:
             p = np.real(np.sum(vect[proj,:]*np.conj(vect[proj, :]), 0))
         else:
             p = np.ones(val.shape)
 
-#        print 'proj', np.sum(np.sum(p))
+#        print('proj', np.sum(np.sum(p)))
         
         return val.real, vect, p
         
@@ -296,7 +301,7 @@ class wan_ham:
     def solve_ham_sparse(self,k,  num_eigs,fermi=0.0, proj=None):
 
 
-#        print 'solve', self.nwan, self.R.shape, self.HR.shape
+#        print('solve', self.nwan, self.R.shape, self.HR.shape)
         
         nr = self.R.shape[0]
         
@@ -305,16 +310,16 @@ class wan_ham:
         
         kmat = np.tile(k, (nr,1))
 
-#        print 'kmat.shape',kmat.shape
-#        print 'self.R.shape', self.R.shape
+#        print('kmat.shape',kmat.shape)
+#        print('self.R.shape', self.R.shape)
 
         exp_ikr = np.exp(1.0j*2*np.pi* np.sum(kmat*self.R, 1))
 
         temp = sps.csc_matrix((1,self.nwan**2), dtype=complex)
         for i in range(nr):
-#            print 'sps.csr_matrix(self.HR[i,:]).shape',sps.csc_matrix(self.HR[i,:]).shape
-#            print exp_ikr[i]
-#            print 'temp.shape', temp.shape
+#            print('sps.csr_matrix(self.HR[i,:]).shape',sps.csc_matrix(self.HR[i,:]).shape)
+#            print(exp_ikr[i])
+#            print('temp.shape', temp.shape)
             temp += exp_ikr[i]*sps.csc_matrix(self.HR[i,:])
 
         hk = sps.csc_matrix.reshape(temp, (self.nwan, self.nwan)) 
@@ -323,7 +328,7 @@ class wan_ham:
 
         tb = time.time()
         val, vect = sps_lin.eigsh(hk, k=num_eigs, sigma=fermi, which='LM')
-        print 'TIME eigsh', time.time()-tb
+        print('TIME eigsh', time.time()-tb)
         
 #        val=np.zeros(num_eigs)
 #       vect = np.zeros((self.nwan, num_eigs))
@@ -333,7 +338,7 @@ class wan_ham:
         else:
             p = np.ones(val.shape)
 
-#        print 'proj', np.sum(np.sum(p))
+#        print('proj', np.sum(np.sum(p)))
         
         return val.real, vect, p
         
