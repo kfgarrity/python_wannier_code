@@ -1,6 +1,6 @@
 import sys
 import matplotlib as matplotlib
-matplotlib.use('Agg') #fixes display issues?
+#matplotlib.use('Agg') #fixes display issues?
 import numpy as np
 import scipy as sp
 import math
@@ -10,6 +10,7 @@ import copy as copy
 import matplotlib.pyplot as plt 
 import scipy.sparse as sps
 
+import scipy.optimize as opt
 
 from wan_ham import wan_ham
 
@@ -772,7 +773,25 @@ class ham_ops:
 
         return IMAGE
 
-    def find_nodes(self, ham, num_occ, origin=[-0.5,-0.5,-0.5], k1=[1,0,0],k2=[0,1,0],k3=[0,0,1], nk1=20, nk2=20, nk3=20,sig=[0.01, 0.02, 0.05, 0.1, 0.2,0.3], thresh=0.3):
+    def get_gap_points(self, directgap, thresh=0.0005, val=None):
+        (n1,n2,n3) = np.shape(directgap)
+        points = []
+        gap = []
+        v = []        
+        for c1 in range(n1):
+            for c2 in range(n2):
+                for c3 in range(n3):
+                    if directgap[c1,c2,c3] < thresh:
+                        points.append([c1,c2,c3])
+                        gap.append(directgap[c1,c2,c3])
+                        if not( val is None):
+                            v.append(val[c1,c2,c3])
+                            
+        print("n points ", len(points))
+        return np.array(points), np.array(gap), np.array(v)
+    
+        
+    def find_nodes(self, ham, num_occ, origin=[-0.5,-0.5,-0.5], k1=[1,0,0],k2=[0,1,0],k3=[0,0,1], nk1=20, nk2=20, nk3=20,sig=[0.01, 0.02, 0.05, 0.1, 0.2,0.3], thresh=-10, node_tol = 0.001, use_min=True):
 
         K = np.zeros((nk1*4,nk2*4,nk3*4,3),dtype=float)
 
@@ -793,12 +812,15 @@ class ham_ops:
         IMAGE = np.zeros((nk1*4, nk2*4, nk3*4, len(sig)))
         DIRECTGAP = np.zeros((nk1*4, nk2*4, nk3*4))
         DIRECTGAP[:,:,:] = 100.0
+
+        VAL = np.ones((nk1*4, nk2*4, nk3*4)) * 100.0
         
 #        sig_0 = 0.2
 
         #initial pass
         
         for c1 in range(0,4*nk1,4):
+            print("c1 ", c1)
             for c2 in range(0,4*nk2,4):
                 for c3 in range(0,4*nk3,4):
                     k = K[c1,c2,c3,:]
@@ -809,19 +831,42 @@ class ham_ops:
                     
                     #IMAGE[c1,c2,c3,-1] = np.exp( -(d)**2 / sig[-1]**2)
 
-        #second pass
 
-#        maxval = np.max(IMAGE[:,:,:,-1])
-#        thresh = maxval * 0.1
-#        print("thresh ", maxval, thresh)
+        if thresh == -10:
+            thresh = max(np.min(DIRECTGAP) * 1.5, 0.03)
+            print("set thresh ", thresh)
+         
+                    #second pass
+
+
         
+                    #        maxval = np.max(IMAGE[:,:,:,-1])
+                    #        thresh = maxval * 0.1
+                    #        print("thresh ", maxval, thresh)
+                    
+
+        def fun_to_min(k):
+            val,vect,p = ham.solve_ham(k,proj=None)
+            return val[num_occ] - val[num_occ-1]
+        
+
         num_thresh = 0
 
         min_gap = 1000000000.0
         min_cond = 1000000000.0
         max_val = -1000000000.0
+
+        dk1 = float(1)/float(nk1*4)/2.0
+        dk2 = float(1)/float(nk2*4)/2.0
+        dk3 = float(1)/float(nk3*4)/2.0
+
+        weyl_points = []
+        dirac_points = []        
+        higher_order_points = []        
+        
         
         for c1 in range(0,4*nk1,4):
+            print("c1 ", c1)
             for c2 in range(0,4*nk2,4):
                 for c3 in range(0,4*nk3,4):
                     for c1a in range(4):
@@ -846,9 +891,42 @@ class ham_ops:
 #                                if IMAGE[c1,c2,c3,-1] > thresh or IMAGE[c1,c2,c3p,-1] > thresh or IMAGE[c1,c2p,c3,-1] > thresh or IMAGE[c1,c2p,c3p,-1] > thresh or IMAGE[c1p,c2,c3,-1] > thresh or IMAGE[c1p,c2,c3p,-1] > thresh or IMAGE[c1p,c2p,c3,-1] > thresh or IMAGE[c1p,c2p,c3p,-1] > thresh:
                                     num_thresh += 1
                                     k = K[c1+c1a,c2+c2a,c3+c3a,:]
-                                    val,vect,p = ham.solve_ham(k,proj=None)
+
+                                    if use_min:
+                                        B = opt.Bounds(k - [dk1, dk2, dk3] , k + [dk1, dk2, dk3], keep_feasible=True)
+#                                        print("start ", k,  k - [dk1, dk2, dk3], k + [dk1, dk2, dk3])
+                                        val,vect,p = ham.solve_ham(k,proj=None)
+                                        if val[num_occ] - val[num_occ-1] < 0.15:
+#                                            print(k, " start ", val[num_occ] - val[num_occ-1] )
+                                            res = opt.minimize(fun_to_min, k, method="Powell", bounds=B, tol=0.5e-3, options={"maxfev": 5} )
+#                                            print(res.x , " prelim ", res.fun)
+                                            if res.fun < 0.005:
+                                                res = opt.minimize(fun_to_min, res.x, method="Powell", bounds=B, tol=1e-5, options={"maxfev": 30} )
+#                                                print(res.x , " good   ", res.fun)
+                                            val,vect,p = ham.solve_ham(res.x,proj=None)
+                                            
+                                            k = res.x
+#                                        print("end ", k, val[num_occ] - val[num_occ-1])
+                                    else:
+                                        val,vect,p = ham.solve_ham(k,proj=None)
+
                                     d = val[num_occ] - val[num_occ-1]
+                                    if d < node_tol:
+                                        degen = 0
+                                        gap_mean = (val[num_occ] + val[num_occ-1])/2.0
+                                        count = np.sum( np.abs(val - gap_mean  ) < node_tol*2)
+                                        if count == 2:
+                                            weyl_points.append(copy.copy(k))
+                                            print("weyl point ", k, d, count)
+                                        elif count == 4 or count == 4:
+                                            dirac_points.append(copy.copy(k))
+                                            print("dirac point ", k, d, count)                                            
+                                        else:
+                                            higher_order_points.append(copy.copy(k))
+                                            print("nontrivial point ", k, d, count)                                                                                        
+
                                     DIRECTGAP[c1+c1a,c2+c2a,c3+c3a] = d
+                                    VAL[c1+c1a,c2+c2a,c3+c3a] = 0.5*(val[num_occ] + val[num_occ-1])
                                     min_gap = min(d, min_gap)
                                     min_cond = min(min_cond, val[num_occ] )
                                     max_val = max(max_val, val[num_occ-1] )
@@ -860,7 +938,11 @@ class ham_ops:
         print("num thresh " , num_thresh , " out of ", nk1*nk2*nk3*4*4*4)
         print("min direct gap " , min_gap , " indirect gap  ", min_cond - max_val)
 
-        return IMAGE, DIRECTGAP, [min_gap, min_cond - max_val]
+        print("weyl ", weyl_points)
+        print("dirac ", dirac_points)
+        print("higher order ", higher_order_points)
+        
+        return IMAGE, DIRECTGAP, VAL, [min_gap, min_cond - max_val], weyl_points, dirac_points, higher_order_points
 
     
     def dos(self,ham, grid, proj=None, fermi=0.0, xrange=None, nenergy=100, sig = 0.02,  pdf="dos.pdf", show=False):

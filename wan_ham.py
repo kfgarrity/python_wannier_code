@@ -1,6 +1,6 @@
 import sys
 import matplotlib
-matplotlib.use('Agg') #fixes display issues?
+#matplotlib.use('Agg') #fixes display issues?
 import numpy as np
 import scipy as sp
 import math
