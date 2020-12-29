@@ -16,7 +16,7 @@ ops = ham_ops()
 nelec = 173-104
 num_occ = nelec
 
-IMAGE, DIRECTGAP, VALS, gaps, weyl_points, dirac_points, ho_points = ops.find_nodes(h, nelec, nk1=8, nk2=8, nk3=8)
+IMAGE, DIRECTGAP, VALS, gaps, weyl_points, dirac_points, ho_points = ops.find_nodes(h, nelec, nk1=12, nk2=12, nk3=12)
 
 print("gaps ", gaps)
 

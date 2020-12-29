@@ -791,7 +791,7 @@ class ham_ops:
         return np.array(points), np.array(gap), np.array(v)
     
         
-    def find_nodes(self, ham, num_occ, origin=[-0.5,-0.5,-0.5], k1=[1,0,0],k2=[0,1,0],k3=[0,0,1], nk1=20, nk2=20, nk3=20,sig=[0.01, 0.02, 0.05, 0.1, 0.2,0.3], thresh=-10, node_tol = 0.001, use_min=True):
+    def find_nodes(self, ham, num_occ, origin=[-0.5,-0.5,-0.5], k1=[1,0,0],k2=[0,1,0],k3=[0,0,1], nk1=20, nk2=20, nk3=20,sig=[0.01, 0.02, 0.05, 0.1, 0.2,0.3], thresh=-10, node_tol = 0.0015, use_min=True):
 
         K = np.zeros((nk1*4,nk2*4,nk3*4,3),dtype=float)
 
@@ -833,7 +833,7 @@ class ham_ops:
 
 
         if thresh == -10:
-            thresh = max(np.min(DIRECTGAP) * 1.5, 0.03)
+            thresh = max(np.min(DIRECTGAP) * 2.0, 0.04)
             print("set thresh ", thresh)
          
                     #second pass
