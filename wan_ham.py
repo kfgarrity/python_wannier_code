@@ -44,9 +44,8 @@ class wan_ham:
         
         for i in range(nr):
             st += "    1"
-            if i % 15 == 14:
+            if i % 15 == 14 and i != nr-1:
                 st += "\n"
-        st += "\n"
         st += "\n"
         
         for i in range(nr):

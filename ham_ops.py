@@ -1368,7 +1368,7 @@ class ham_ops:
         
         def plus_r(rold, subcell):
             rnew = subcell + rold
-            cellnew = rnew/ supercell   #this is integer division
+            cellnew = rnew // supercell   #this is integer division
             subnew  = rnew%supercell
 
             return cellnew,subnew
@@ -1380,6 +1380,7 @@ class ham_ops:
 
         RH_new = {}
         h_temp = np.zeros((h.nwan,h.nwan),dtype=complex)
+        rr_temp = np.zeros((h.nwan,h.nwan,3),dtype=complex)
         subcell = np.zeros(3,dtype=int)
 
         t1=time.time()
@@ -1401,12 +1402,16 @@ class ham_ops:
 #                        print( 'rs', rold, subcell, 'new', cellnew, subnew)
                         if tuple(cellnew) not in RH_new:
                             if sparse:
-                                RH_new[tuple(cellnew)] = [cellnew, sps.lil_matrix((NWAN,NWAN ),dtype=complex)]
+                                RH_new[tuple(cellnew)] = [cellnew, sps.lil_matrix((NWAN,NWAN ),dtype=complex), sps.lil_matrix((NWAN,NWAN,3 ),dtype=complex)]
                             else:
-                                RH_new[tuple(cellnew)] = [cellnew, np.zeros((NWAN,NWAN ),dtype=complex)]
+                                RH_new[tuple(cellnew)] = [cellnew, np.zeros((NWAN,NWAN ),dtype=complex), np.zeros((NWAN,NWAN,3 ),dtype=complex)]
 
 
                         h_temp[:,:] = np.reshape(h.HR[ii,:], (h.nwan,h.nwan))
+
+                        rr_temp[:,:,0] = np.reshape(h.RR[ii,:,0], (h.nwan,h.nwan))
+                        rr_temp[:,:,1] = np.reshape(h.RR[ii,:,1], (h.nwan,h.nwan))
+                        rr_temp[:,:,2] = np.reshape(h.RR[ii,:,2], (h.nwan,h.nwan))
 
                         r1 = subcell_index(subcell)
                         r2 = subcell_index(subnew)
@@ -1415,12 +1420,20 @@ class ham_ops:
                         for c1,c2 in enumerate(r1):
                             for d1,d2 in enumerate(r2):
                                 RH_new[tuple(cellnew)][1][c2,d2] += h_temp[c1,d1]
+                                RH_new[tuple(cellnew)][2][c2,d2,:] += rr_temp[c1,d1,:]                                
 
 
+        for key in RH_new:
+            print("key ", key)
+        print(len(RH_new))
+        
         t2=time.time()
                                 
         rn = len(RH_new)
         hbig = wan_ham()
+        hbig.B[0,:] = h.B[0,:] / supercell[0]
+        hbig.B[1,:] = h.B[1,:] / supercell[1]
+        hbig.B[2,:] = h.B[2,:] / supercell[2]        
         if sparse:
             hbig.sparse = True
             
@@ -1431,16 +1444,31 @@ class ham_ops:
         hbig.R = np.zeros((rn, 3),dtype=float)
         if sparse:
             hbig.HR = sps.lil_matrix((rn, NWAN**2),dtype=complex)
+            hbig.RR = sps.lil_matrix((rn, NWAN**2,3),dtype=complex)
         else:
             hbig.HR = np.zeros((rn, NWAN**2),dtype=complex)
+            hbig.RR = np.zeros((rn, NWAN**2,3),dtype=complex)            
             
         for c,i in enumerate(RH_new):
             h = RH_new[i][1]
             r = RH_new[i][0]
+            rr = RH_new[i][2]
+
             if sparse:
                 hbig.HR[c,:] = sps.lil_matrix.reshape(h, NWAN*NWAN)
+
+                hbig.RR[c,:,0] = sps.lil_matrix.reshape(rr[:,:,0], NWAN*NWAN)
+                hbig.RR[c,:,1] = sps.lil_matrix.reshape(rr[:,:,1], NWAN*NWAN)
+                hbig.RR[c,:,2] = sps.lil_matrix.reshape(rr[:,:,2], NWAN*NWAN)
+
             else:
                 hbig.HR[c,:] = np.reshape(h, NWAN*NWAN)
+
+#                print("size h ", np.shape(h), "  rr ", np.shape(rr))
+                
+                hbig.RR[c,:,0] = np.reshape(rr[:,:,0], NWAN*NWAN)
+                hbig.RR[c,:,1] = np.reshape(rr[:,:,1], NWAN*NWAN)
+                hbig.RR[c,:,2] = np.reshape(rr[:,:,2], NWAN*NWAN)                
                 
             hbig.R[c,:] = r
 
@@ -1498,9 +1526,15 @@ class ham_ops:
 #        h_temp = np.zeros((NWAN, NWAN),dtype=complex)
         h_temp = np.zeros((hup.nwan*2, hup.nwan*2),dtype=complex)
 
+        rr_temp = np.zeros((hup.nwan*2, hup.nwan*2,3),dtype=complex)
+        
         h_temp_up = np.zeros((hup.nwan,hup.nwan),dtype=complex)
         h_temp_dn = np.zeros((hup.nwan,hup.nwan),dtype=complex)
 
+        rr_temp_up = np.zeros((hup.nwan,hup.nwan,3),dtype=complex)
+        rr_temp_dn = np.zeros((hup.nwan,hup.nwan,3),dtype=complex)
+
+        
         ind_list = self.index_match(hup,hdn)
         
             
@@ -1508,7 +1542,7 @@ class ham_ops:
             for j in range(supercell[1]):
                 for k in range(supercell[2]):
                     subcell = np.array([i,j,k],dtype=int)
-
+                    print("subcell ", subcell)
                     #                    for ii in range(hup.R.shape[0]):
                     for [iup,idn] in ind_list:
 
@@ -1525,13 +1559,16 @@ class ham_ops:
 #                        print( 'rs', rold, subcell, 'new', cellnew, subnew)
                         if tuple(cellnew) not in RH_new:
                             if not sparse:
-                                RH_new[tuple(cellnew)] = [cellnew, np.zeros((NWAN,NWAN ),dtype=complex)]
+#                                RH_new[tuple(cellnew)] = [cellnew, np.zeros((NWAN,NWAN ),dtype=complex)]
+                                RH_new[tuple(cellnew)] = [cellnew, np.zeros((NWAN,NWAN ),dtype=complex), np.zeros((NWAN,NWAN,3 ),dtype=complex)]
                             elif sparse:
-                                RH_new[tuple(cellnew)] = [cellnew, sps.lil_matrix((NWAN,NWAN ),dtype=complex)]
+                                RH_new[tuple(cellnew)] = [cellnew, sps.lil_matrix((NWAN,NWAN ),dtype=complex), sps.lil_matrix((NWAN,NWAN,3 ),dtype=complex)]
 
 
                             #                        h_temp[:,:] = np.reshape(h.HR[ii,:], (h.nwan,h.nwan))
 
+#                        print("ss ", [subcell, subnew])
+                            
                         spin_dirA = mag[subcell_index_mag(subcell)]
                         spin_dirB = mag[subcell_index_mag(subnew)]
 
@@ -1541,14 +1578,23 @@ class ham_ops:
 
                         if iup >= 0:
                             h_temp_up[:,:] = np.reshape(hup.HR[iup,:], (hup.nwan,hup.nwan))
+                            rr_temp_up[:,:,0] = np.reshape(hup.RR[iup,:,0], (hup.nwan,hup.nwan))
+                            rr_temp_up[:,:,1] = np.reshape(hup.RR[iup,:,1], (hup.nwan,hup.nwan))
+                            rr_temp_up[:,:,2] = np.reshape(hup.RR[iup,:,2], (hup.nwan,hup.nwan))
                         else:
                             h_temp_up[:,:] = np.zeros((hup.nwan,hup.nwan),dtype=complex)
+                            rr_temp_up[:,:,:] = np.zeros((hup.nwan,hup.nwan,3),dtype=complex)
                         if idn >= 0:
                             h_temp_dn[:,:] = np.reshape(hdn.HR[idn,:], (hup.nwan,hup.nwan))
+                            rr_temp_dn[:,:,0] = np.reshape(hdn.RR[idn,:,0], (hup.nwan,hup.nwan))
+                            rr_temp_dn[:,:,1] = np.reshape(hdn.RR[idn,:,1], (hup.nwan,hup.nwan))
+                            rr_temp_dn[:,:,2] = np.reshape(hdn.RR[idn,:,2], (hup.nwan,hup.nwan))
                         else:
                             h_temp_dn[:,:] = np.zeros((hup.nwan,hup.nwan),dtype=complex)
+                            rr_temp_dn[:,:,:] = np.zeros((hup.nwan,hup.nwan,3),dtype=complex)
                             
                         h_temp[:,:] = 0.0
+                        rr_temp[:,:,:] = 0.0
                         for m in [mA,mB]:
                             for c1 in range(nw):
                                 for c2 in range(nw):
@@ -1556,13 +1602,28 @@ class ham_ops:
                                     d = (h_temp_up[c1,c2] - h_temp_dn[c1,c2])/2.0
                                 
                                     temp = s_0 * a + d * m
-                                
+
+                                    ar = (rr_temp_up[c1,c2,:] + rr_temp_dn[c1,c2,:])/2.0
+                                    dr = (rr_temp_up[c1,c2,:] - rr_temp_dn[c1,c2,:])/2.0
+                                    rtemp = np.zeros((2,2,3),dtype=complex)
+                                    for jj in range(3):
+                                        rtemp[:,:,jj] = s_0 * ar[jj] + dr[jj] * m
+                                        
+                                        
                                     h_temp[c1*2,c2*2] += temp[0,0]
                                     h_temp[c1*2+0,c2*2+1] += temp[0,1]
                                     h_temp[c1*2+1,c2*2+0] += temp[1,0]
                                     h_temp[c1*2+1,c2*2+1] += temp[1,1]
 
+                                    rr_temp[c1*2,c2*2    ,:]   += rtemp[0,0,:]
+                                    rr_temp[c1*2+0,c2*2+1,:] += rtemp[0,1,:]
+                                    rr_temp[c1*2+1,c2*2+0,:] += rtemp[1,0,:]
+                                    rr_temp[c1*2+1,c2*2+1,:] += rtemp[1,1,:]
+                                    
+
+                                    
                         h_temp = h_temp / 2.0
+                        rr_temp = rr_temp / 2.0
                         
 
                         r1 = subcell_index(subcell)
@@ -1572,9 +1633,14 @@ class ham_ops:
                         for c1,c2 in enumerate(r1):
                             for d1,d2 in enumerate(r2):
                                 RH_new[tuple(cellnew)][1][c2,d2] += h_temp[c1,d1]
+                                RH_new[tuple(cellnew)][2][c2,d2,:] += rr_temp[c1,d1,:]                                
 
         rn = len(RH_new)
         hbig = wan_ham()
+        hbig.B[0,:] = hup.B[0,:] / supercell[0]
+        hbig.B[1,:] = hup.B[1,:] / supercell[1]
+        hbig.B[2,:] = hup.B[2,:] / supercell[2]        
+        
         if sparse:
             hbig.sparse = True
         
@@ -1584,17 +1650,28 @@ class ham_ops:
         hbig.R = np.zeros((rn, 3),dtype=float)
         if sparse:
             hbig.HR = sps.lil_matrix((rn, NWAN**2),dtype=complex)
+            hbig.RR = sps.lil_matrix((rn, NWAN**2,3),dtype=complex)            
         else:            
             hbig.HR = np.zeros((rn, NWAN**2),dtype=complex)
+            hbig.RR = np.zeros((rn, NWAN**2,3),dtype=complex)            
 
         for c,i in enumerate(RH_new):
             h = RH_new[i][1]
+            rr = RH_new[i][2]
             r = RH_new[i][0]
+#            print("shape rr ", np.shape(rr))
             if sparse:
                 hbig.HR[c,:] = sps.lil_matrix.reshape(h, NWAN*NWAN)
+                hbig.RR[c,:,0] = sps.lil_matrix.reshape(rr[:,:,0], NWAN*NWAN)
+                hbig.RR[c,:,1] = sps.lil_matrix.reshape(rr[:,:,1], NWAN*NWAN)
+                hbig.RR[c,:,2] = sps.lil_matrix.reshape(rr[:,:,2], NWAN*NWAN)                                
             else:
                 hbig.HR[c,:] = np.reshape(h, NWAN*NWAN)
 
+                hbig.RR[c,:,0] = np.reshape(rr[:,:,0], NWAN*NWAN)
+                hbig.RR[c,:,1] = np.reshape(rr[:,:,1], NWAN*NWAN)
+                hbig.RR[c,:,2] = np.reshape(rr[:,:,2], NWAN*NWAN)
+                
             hbig.R[c,:] = r
 
         return hbig
@@ -1672,7 +1749,7 @@ class ham_ops:
                     for n in range(nwan_small):
                         
                         at = atom_dict[n]
-                        print( 'ssnum at', ssnum, at, [x,y,z], n, 'ind', ssnum+at)
+#                        print( 'ssnum at', ssnum, at, [x,y,z], n, 'ind', ssnum+at)
                         xyzV[ssnum+at,0:3] = np.dot((pos_orig[at,:]+ np.array([x,y,z])), A)
                         xyzV[ssnum+at,3] += v2[c]
 
