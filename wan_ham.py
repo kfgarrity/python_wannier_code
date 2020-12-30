@@ -62,8 +62,8 @@ class wan_ham:
             rr0 = np.reshape(self.RR[i,:,0], (self.nwan, self.nwan))
             rr1 = np.reshape(self.RR[i,:,1], (self.nwan, self.nwan))
             rr2 = np.reshape(self.RR[i,:,2], (self.nwan, self.nwan))
-            for a in range(self.nwan):
-                for b in range(self.nwan):
+            for b in range(self.nwan):
+                for a in range(self.nwan):
                     st += "   "+str(a+1)+"   "+str(b+1)+"   "+str(np.real(rr0[a,b]))+"  "+str(np.imag(rr0[a,b]))+"  "+"   "+str(np.real(rr1[a,b]))+"  "+str(np.imag(rr1[a,b]))+"  "+"   "+str(np.real(rr2[a,b]))+"  "+str(np.imag(rr2[a,b]))+"\n"
                     
                     
