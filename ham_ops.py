@@ -1043,6 +1043,8 @@ class ham_ops:
         newh.nwan = hup.nwan * 2
         newh.nr = hup.nr
 
+        newh.B = copy.copy(hup.B)
+
         nw = hup.nwan
 
 
@@ -1055,26 +1057,56 @@ class ham_ops:
 
         h = np.zeros((newh.nwan,newh.nwan),dtype=np.csingle)
 
+        newh.HR = np.zeros((Rl, (hup.nwan*2)**2),dtype=np.csingle)
+        newh.RR = np.zeros((Rl, (hup.nwan*2)**2,3),dtype=np.csingle)
+
+        h = np.zeros((newh.nwan,newh.nwan),dtype=np.csingle)
+        r = np.zeros((newh.nwan,newh.nwan,3),dtype=np.csingle)
+
+
         h1 = np.zeros((nw,nw),dtype=np.csingle)
         h2 = np.zeros((nw,nw),dtype=np.csingle)
 
+
         temp = np.zeros((2,2),dtype=np.csingle)
+
+        rr1 = np.zeros((nw,nw,3),dtype=np.csingle)
+        rr2 = np.zeros((nw,nw,3),dtype=np.csingle)
+
+        temp = np.zeros((2,2),dtype=np.csingle)
+
 
         
         #        for i in range(newh.R.shape[0]):
         for i,[iup, idn] in enumerate(ind_list):
             
             h[:,:] = 0.0
+            r[:,:,:] = 0.0
             if iup >= 0:
                 h1[:,:] = np.reshape(hup.HR[iup,:], (nw,nw))
                 newh.R[i,:] = hup.R[iup,:]
+
+                rr1[:,:,0] =  np.reshape(hup.RR[iup,:,0], (nw,nw))
+                rr1[:,:,1] =  np.reshape(hup.RR[iup,:,1], (nw,nw))
+                rr1[:,:,2] =  np.reshape(hup.RR[iup,:,2], (nw,nw))
+
             else:
                 h1[:,:] = 0.0
+                rr1[:,:,:] = 0.0
+
             if idn >= 0:
                 h2[:,:] = np.reshape(hdn.HR[idn,:], (nw,nw))
                 newh.R[i,:] = hdn.R[idn,:]                
+
+                rr2[:,:,0] =  np.reshape(hdn.RR[iup,:,0], (nw,nw))
+                rr2[:,:,1] =  np.reshape(hdn.RR[iup,:,1], (nw,nw))
+                rr2[:,:,2] =  np.reshape(hdn.RR[iup,:,2], (nw,nw))
+
+
+
             else:
                 h2[:,:] = 0.0
+                rr2[:,:,:] = 0.0
                 
 #            h[0:nw,0:nw] = h1*m[0,0]
 #            h[0:nw,nw:nw*2] = h1*m[0,1]
@@ -1093,10 +1125,27 @@ class ham_ops:
                     h[ii*2+1,jj*2+0] = temp[1,0]
                     h[ii*2+1,jj*2+1] = temp[1,1]
 
+                    a = (rr1[ii,jj,:] + rr2[ii,jj,:])/2.0
+                    d = (rr1[ii,jj,:] - rr2[ii,jj,:])/2.0
+                    
+                    for q in range(3):
+                        rtemp = s_0 * a[q] + d[q] * m
+
+                        r[ii*2,jj*2,q] = rtemp[0,0]
+                        r[ii*2+0,jj*2+1,q] = rtemp[0,1]
+                        r[ii*2+1,jj*2+0,q] = rtemp[1,0]
+                        r[ii*2+1,jj*2+1,q] = rtemp[1,1]
+                        
+
+
+
                     
                     
                     
             newh.HR[i,:] = np.reshape(h, (nw*2*nw*2))
+            newh.RR[i,:,0] = np.reshape(r[:,:,0], (nw*2*nw*2))
+            newh.RR[i,:,1] = np.reshape(r[:,:,1], (nw*2*nw*2))
+            newh.RR[i,:,2] = np.reshape(r[:,:,2], (nw*2*nw*2))
 
             
         return newh    
@@ -1190,6 +1239,8 @@ class ham_ops:
         newh = wan_ham()
         if sparse:
             newh.sparse=True
+
+        newh.B = copy.copy(h1.B)
             
         newh.nwan = h1.nwan 
         newh.nr = h1.nr
@@ -1212,15 +1263,28 @@ class ham_ops:
         if sparse:
             newh.HR = sps.lil_matrix((Rl, (newh.nwan)**2),dtype=np.csingle)
             h_temp =  sps.lil_matrix((newh.nwan,newh.nwan),dtype=np.csingle)
+
             h1_temp = sps.lil_matrix((nw,nw),dtype=np.csingle)
             h2_temp = sps.lil_matrix((nw,nw),dtype=np.csingle)
+
+            rr1_temp = sps.lil_matrix((nw,nw,3),dtype=np.csingle)
+            rr2_temp = sps.lil_matrix((nw,nw,3),dtype=np.csingle)
+
+            newh.RR = sps.lil_matrix((Rl, (newh.nwan)**2, 3),dtype=np.csingle)
+
             
         else:
             newh.HR = np.zeros((Rl, (newh.nwan)**2),dtype=np.csingle)
+            newh.RR = np.zeros((Rl, (newh.nwan)**2, 3),dtype=np.csingle)
+
             h_temp = np.zeros((newh.nwan,newh.nwan),dtype=np.csingle)
             h1_temp = np.zeros((nw,nw),dtype=np.csingle)
             h2_temp = np.zeros((nw,nw),dtype=np.csingle)
+
+            rr1_temp = np.zeros((nw,nw,3),dtype=np.csingle)
+            rr2_temp = np.zeros((nw,nw,3),dtype=np.csingle)
             
+
 
        
         for i in range(Rl):
@@ -1232,27 +1296,55 @@ class ham_ops:
             if sparse:
                 if i1>=0:
                     h1_temp[:,:] = sps.lil_matrix.reshape(h1.HR[i1,:], (nw,nw))
+                    
+                    rr1_temp[:,:,0] = sps.lil_matrix.reshape(h1.RR[i1,:,0], (nw,nw))
+                    rr1_temp[:,:,1] = sps.lil_matrix.reshape(h1.RR[i1,:,1], (nw,nw))
+                    rr1_temp[:,:,2] = sps.lil_matrix.reshape(h1.RR[i1,:,2], (nw,nw))
                 else:
                     h1_temp[:,:] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
+                    r1_temp[:,:,0] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
+                    r1_temp[:,:,1] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
+                    r1_temp[:,:,2] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
+
 
                 if i2>=0:
                     h2_temp[:,:] = sps.lil_matrix.reshape(h2.HR[i2,:], (nw,nw))
+
+                    rr2_temp[:,:,0] = sps.lil_matrix.reshape(h2.RR[i2,:,0], (nw,nw))
+                    rr2_temp[:,:,1] = sps.lil_matrix.reshape(h2.RR[i2,:,1], (nw,nw))
+                    rr2_temp[:,:,2] = sps.lil_matrix.reshape(h2.RR[i2,:,2], (nw,nw))
                 else:
-                    h1_temp[:,:] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
+                    h2_temp[:,:] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
+                    r2_temp[:,:,0] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
+                    r2_temp[:,:,1] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
+                    r2_temp[:,:,2] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
 
             else:
                 if i1>=0:
                     h1_temp[:,:] = np.reshape(h1.HR[i1,:], (nw,nw))
+                    rr1_temp[:,:,0] = np.reshape(h1.RR[i1,:,0], (nw,nw))
+                    rr1_temp[:,:,1] = np.reshape(h1.RR[i1,:,1], (nw,nw))
+                    rr1_temp[:,:,2] = np.reshape(h1.RR[i1,:,2], (nw,nw))
                 else:
                     h1_temp[:,:] = np.zeros( (nw,nw),dtype=np.csingle)
+                    rr1_temp[:,:,0] = np.zeros( (nw,nw),dtype=np.csingle)
+                    rr1_temp[:,:,1] = np.zeros( (nw,nw),dtype=np.csingle)
+                    rr1_temp[:,:,2] = np.zeros( (nw,nw),dtype=np.csingle)
 
                 if i2>=0:
                     h2_temp[:,:] = np.reshape(h2.HR[i2,:], (nw,nw))
+                    rr2_temp[:,:,0] = np.reshape(h2.RR[i2,:,0], (nw,nw))
+                    rr2_temp[:,:,1] = np.reshape(h2.RR[i2,:,1], (nw,nw))
+                    rr2_temp[:,:,2] = np.reshape(h2.RR[i2,:,2], (nw,nw))
                 else:
-                    h1_temp[:,:] = np.zeros( (nw,nw),dtype=np.csingle)
+                    h2_temp[:,:] = np.zeros( (nw,nw),dtype=np.csingle)
+                    rr2_temp[:,:,0] = np.zeros( (nw,nw),dtype=np.csingle)
+                    rr2_temp[:,:,1] = np.zeros( (nw,nw),dtype=np.csingle)
+                    rr2_temp[:,:,2] = np.zeros( (nw,nw),dtype=np.csingle)
 
                 
             h_temp[:,:] = h1_temp*fraction[0] + fraction[1]*h2_temp*percent
+            r_temp = rr1_temp*fraction[0] + fraction[1]*rr2_temp*percent
             
 #            for ii in range(nw):
 #                for jj in range(nw):
@@ -1261,8 +1353,14 @@ class ham_ops:
 
             if sparse:
                 newh.HR[i,:] = sps.lil_matrix.reshape(h_temp, (nw*nw))
+                newh.RR[i,:,0] = sps.lil_matrix.reshape(r_temp[:,:,0], (nw*nw))
+                newh.RR[i,:,1] = sps.lil_matrix.reshape(r_temp[:,:,1], (nw*nw))
+                newh.RR[i,:,2] = sps.lil_matrix.reshape(r_temp[:,:,2], (nw*nw))
             else:
                 newh.HR[i,:] = np.reshape(h_temp, (nw*nw))
+                newh.RR[i,:,0] = np.reshape(r_temp[:,:,0], (nw*nw))
+                newh.RR[i,:,1] = np.reshape(r_temp[:,:,1], (nw*nw))
+                newh.RR[i,:,2] = np.reshape(r_temp[:,:,2], (nw*nw))
 
                 
             if i1 >= 0:
@@ -1333,6 +1431,7 @@ class ham_ops:
         
         newh.R = copy.copy(h1.R)
         newh.HR = np.zeros((newh.R.shape[0], (newh.nwan)**2),dtype=np.csingle)
+        newh.RR = np.zeros((newh.RR.shape[0], (newh.nwan)**2, 3),dtype=np.csingle)
 
         h_temp = np.zeros((newh.nwan,newh.nwan),dtype=np.csingle)
 
@@ -1343,14 +1442,9 @@ class ham_ops:
             h2_temp[:,:] = np.reshape(h2.HR[i,:], (nw,nw))
 
             h_temp[:,:] = h1_temp + sign*h2_temp
-            
-            
-#            for ii in range(nw):
-#                for jj in range(nw):
-#                    h[ii*2,jj*2] = h1[ii,jj]
-#                    h[ii*2+1,jj*2+1] = h2[ii,jj]
                     
             newh.HR[i,:] = np.reshape(h_temp, (nw*nw))
+            newh.RR[i,:,:]  = h1.RR[i,:,:] + sign*h2.RR[i,:,:]
 
 
         return newh    
