@@ -52,8 +52,8 @@ class wan_ham:
             st += "\n"
             st += str(int(self.R[i,0]))+"  "+str(int(self.R[i,1]))+"  "+str(int(self.R[i,2]))+"\n"
             hr = np.reshape(self.HR[i,:], (self.nwan, self.nwan))
-            for a in range(self.nwan):
-                for b in range(self.nwan):
+            for b in range(self.nwan):
+                for a in range(self.nwan):
                     st += "   "+str(a+1)+"   "+str(b+1)+"   "+str(np.real(hr[a,b]))+"  "+str(np.imag(hr[a,b]))+"\n"
 
         for i in range(nr):
