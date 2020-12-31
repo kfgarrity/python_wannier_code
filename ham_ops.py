@@ -73,7 +73,7 @@ class ham_ops:
 #        print( 'unfold inner time EXP_ijk', t1-t0)
 #        t0=t1
 
-        vect_prim_ss = np.zeros((ham_prim.nwan, vect_ss.shape[0]), dtype=complex)
+        vect_prim_ss = np.zeros((ham_prim.nwan, vect_ss.shape[0]), dtype=np.csingle)
                            
         for n in range(ham_prim.nwan):
             for i in range(np.prod(supercell)):
@@ -259,8 +259,8 @@ class ham_ops:
 
 
                 
-        VECT0 = np.zeros((nk1, ham.nwan, ham.nwan),dtype=complex)
-        VECT1 = np.zeros((nk1, ham.nwan, ham.nwan),dtype=complex)
+        VECT0 = np.zeros((nk1, ham.nwan, ham.nwan),dtype=np.csingle)
+        VECT1 = np.zeros((nk1, ham.nwan, ham.nwan),dtype=np.csingle)
         
         gap_min = 100000000000.0
         val_max = -10000000000000.0
@@ -452,7 +452,7 @@ class ham_ops:
             lim1=nk1+1
             lim2=nk2+1
             
-        VECT = np.zeros((lim1, lim2, ham.nwan, ham.nwan),dtype=complex)
+        VECT = np.zeros((lim1, lim2, ham.nwan, ham.nwan),dtype=np.csingle)
         gap_min = 100000000000.0
         val_max = -10000000000000.0
         cond_min = 10000000000.0
@@ -1051,14 +1051,14 @@ class ham_ops:
         
         newh.R = np.zeros((Rl,3),dtype=float)
         
-        newh.HR = np.zeros((Rl, (hup.nwan*2)**2),dtype=complex)
+        newh.HR = np.zeros((Rl, (hup.nwan*2)**2),dtype=np.csingle)
 
-        h = np.zeros((newh.nwan,newh.nwan),dtype=complex)
+        h = np.zeros((newh.nwan,newh.nwan),dtype=np.csingle)
 
-        h1 = np.zeros((nw,nw),dtype=complex)
-        h2 = np.zeros((nw,nw),dtype=complex)
+        h1 = np.zeros((nw,nw),dtype=np.csingle)
+        h2 = np.zeros((nw,nw),dtype=np.csingle)
 
-        temp = np.zeros((2,2),dtype=complex)
+        temp = np.zeros((2,2),dtype=np.csingle)
 
         
         #        for i in range(newh.R.shape[0]):
@@ -1103,8 +1103,8 @@ class ham_ops:
 
 
     def reverse_spin(self, ham):
-        h = np.zeros((ham.nwan,ham.nwan),dtype=complex)
-        h1 = np.zeros((ham.nwan,ham.nwan),dtype=complex)
+        h = np.zeros((ham.nwan,ham.nwan),dtype=np.csingle)
+        h1 = np.zeros((ham.nwan,ham.nwan),dtype=np.csingle)
 
 
         nw = ham.nwan/2
@@ -1210,16 +1210,16 @@ class ham_ops:
         
         newh.R = np.zeros((Rl,3), dtype=float)
         if sparse:
-            newh.HR = sps.lil_matrix((Rl, (newh.nwan)**2),dtype=complex)
-            h_temp =  sps.lil_matrix((newh.nwan,newh.nwan),dtype=complex)
-            h1_temp = sps.lil_matrix((nw,nw),dtype=complex)
-            h2_temp = sps.lil_matrix((nw,nw),dtype=complex)
+            newh.HR = sps.lil_matrix((Rl, (newh.nwan)**2),dtype=np.csingle)
+            h_temp =  sps.lil_matrix((newh.nwan,newh.nwan),dtype=np.csingle)
+            h1_temp = sps.lil_matrix((nw,nw),dtype=np.csingle)
+            h2_temp = sps.lil_matrix((nw,nw),dtype=np.csingle)
             
         else:
-            newh.HR = np.zeros((Rl, (newh.nwan)**2),dtype=complex)
-            h_temp = np.zeros((newh.nwan,newh.nwan),dtype=complex)
-            h1_temp = np.zeros((nw,nw),dtype=complex)
-            h2_temp = np.zeros((nw,nw),dtype=complex)
+            newh.HR = np.zeros((Rl, (newh.nwan)**2),dtype=np.csingle)
+            h_temp = np.zeros((newh.nwan,newh.nwan),dtype=np.csingle)
+            h1_temp = np.zeros((nw,nw),dtype=np.csingle)
+            h2_temp = np.zeros((nw,nw),dtype=np.csingle)
             
 
        
@@ -1233,23 +1233,23 @@ class ham_ops:
                 if i1>=0:
                     h1_temp[:,:] = sps.lil_matrix.reshape(h1.HR[i1,:], (nw,nw))
                 else:
-                    h1_temp[:,:] = sps.lil_matrix( (nw,nw),dtype=complex)
+                    h1_temp[:,:] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
 
                 if i2>=0:
                     h2_temp[:,:] = sps.lil_matrix.reshape(h2.HR[i2,:], (nw,nw))
                 else:
-                    h1_temp[:,:] = sps.lil_matrix( (nw,nw),dtype=complex)
+                    h1_temp[:,:] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
 
             else:
                 if i1>=0:
                     h1_temp[:,:] = np.reshape(h1.HR[i1,:], (nw,nw))
                 else:
-                    h1_temp[:,:] = np.zeros( (nw,nw),dtype=complex)
+                    h1_temp[:,:] = np.zeros( (nw,nw),dtype=np.csingle)
 
                 if i2>=0:
                     h2_temp[:,:] = np.reshape(h2.HR[i2,:], (nw,nw))
                 else:
-                    h1_temp[:,:] = np.zeros( (nw,nw),dtype=complex)
+                    h1_temp[:,:] = np.zeros( (nw,nw),dtype=np.csingle)
 
                 
             h_temp[:,:] = h1_temp*fraction[0] + fraction[1]*h2_temp*percent
@@ -1295,13 +1295,13 @@ class ham_ops:
 
         
         newh.R = np.zeros(h1.R.shape, dtype=float)
-        newh.HR = np.zeros((newh.R.shape[0], (newh.nwan)**2),dtype=complex)
+        newh.HR = np.zeros((newh.R.shape[0], (newh.nwan)**2),dtype=np.csingle)
 
-        h_temp = np.zeros((newh.nwan,newh.nwan),dtype=complex)
+        h_temp = np.zeros((newh.nwan,newh.nwan),dtype=np.csingle)
 
        
-        h1_temp = np.zeros((nw,nw),dtype=complex)
-        h2_temp = np.zeros((nw,nw),dtype=complex)
+        h1_temp = np.zeros((nw,nw),dtype=np.csingle)
+        h2_temp = np.zeros((nw,nw),dtype=np.csingle)
         for i in range(newh.R.shape[0]):
 
 #            print( 'r1r2', r1[i1[i],:],r2[i2[i],:])
@@ -1332,12 +1332,12 @@ class ham_ops:
         nw = h1.nwan
         
         newh.R = copy.copy(h1.R)
-        newh.HR = np.zeros((newh.R.shape[0], (newh.nwan)**2),dtype=complex)
+        newh.HR = np.zeros((newh.R.shape[0], (newh.nwan)**2),dtype=np.csingle)
 
-        h_temp = np.zeros((newh.nwan,newh.nwan),dtype=complex)
+        h_temp = np.zeros((newh.nwan,newh.nwan),dtype=np.csingle)
 
-        h1_temp = np.zeros((nw,nw),dtype=complex)
-        h2_temp = np.zeros((nw,nw),dtype=complex)
+        h1_temp = np.zeros((nw,nw),dtype=np.csingle)
+        h2_temp = np.zeros((nw,nw),dtype=np.csingle)
         for i in range(newh.R.shape[0]):
             h1_temp[:,:] = np.reshape(h1.HR[i,:], (nw,nw))
             h2_temp[:,:] = np.reshape(h2.HR[i,:], (nw,nw))
@@ -1379,8 +1379,8 @@ class ham_ops:
         
 
         RH_new = {}
-        h_temp = np.zeros((h.nwan,h.nwan),dtype=complex)
-        rr_temp = np.zeros((h.nwan,h.nwan,3),dtype=complex)
+        h_temp = np.zeros((h.nwan,h.nwan),dtype=np.csingle)
+        rr_temp = np.zeros((h.nwan,h.nwan,3),dtype=np.csingle)
         subcell = np.zeros(3,dtype=int)
 
         t1=time.time()
@@ -1402,9 +1402,9 @@ class ham_ops:
 #                        print( 'rs', rold, subcell, 'new', cellnew, subnew)
                         if tuple(cellnew) not in RH_new:
                             if sparse:
-                                RH_new[tuple(cellnew)] = [cellnew, sps.lil_matrix((NWAN,NWAN ),dtype=complex), sps.lil_matrix((NWAN,NWAN,3 ),dtype=complex)]
+                                RH_new[tuple(cellnew)] = [cellnew, sps.lil_matrix((NWAN,NWAN ),dtype=np.csingle), sps.lil_matrix((NWAN,NWAN,3 ),dtype=np.csingle)]
                             else:
-                                RH_new[tuple(cellnew)] = [cellnew, np.zeros((NWAN,NWAN ),dtype=complex), np.zeros((NWAN,NWAN,3 ),dtype=complex)]
+                                RH_new[tuple(cellnew)] = [cellnew, np.zeros((NWAN,NWAN ),dtype=np.csingle), np.zeros((NWAN,NWAN,3 ),dtype=np.csingle)]
 
 
                         h_temp[:,:] = np.reshape(h.HR[ii,:], (h.nwan,h.nwan))
@@ -1443,11 +1443,11 @@ class ham_ops:
 
         hbig.R = np.zeros((rn, 3),dtype=float)
         if sparse:
-            hbig.HR = sps.lil_matrix((rn, NWAN**2),dtype=complex)
-            hbig.RR = sps.lil_matrix((rn, NWAN**2,3),dtype=complex)
+            hbig.HR = sps.lil_matrix((rn, NWAN**2),dtype=np.csingle)
+            hbig.RR = sps.lil_matrix((rn, NWAN**2,3),dtype=np.csingle)
         else:
-            hbig.HR = np.zeros((rn, NWAN**2),dtype=complex)
-            hbig.RR = np.zeros((rn, NWAN**2,3),dtype=complex)            
+            hbig.HR = np.zeros((rn, NWAN**2),dtype=np.csingle)
+            hbig.RR = np.zeros((rn, NWAN**2,3),dtype=np.csingle)            
             
         for c,i in enumerate(RH_new):
             h = RH_new[i][1]
@@ -1523,16 +1523,16 @@ class ham_ops:
 
         RH_new = {}
 
-#        h_temp = np.zeros((NWAN, NWAN),dtype=complex)
-        h_temp = np.zeros((hup.nwan*2, hup.nwan*2),dtype=complex)
+#        h_temp = np.zeros((NWAN, NWAN),dtype=np.csingle)
+        h_temp = np.zeros((hup.nwan*2, hup.nwan*2),dtype=np.csingle)
 
-        rr_temp = np.zeros((hup.nwan*2, hup.nwan*2,3),dtype=complex)
+        rr_temp = np.zeros((hup.nwan*2, hup.nwan*2,3),dtype=np.csingle)
         
-        h_temp_up = np.zeros((hup.nwan,hup.nwan),dtype=complex)
-        h_temp_dn = np.zeros((hup.nwan,hup.nwan),dtype=complex)
+        h_temp_up = np.zeros((hup.nwan,hup.nwan),dtype=np.csingle)
+        h_temp_dn = np.zeros((hup.nwan,hup.nwan),dtype=np.csingle)
 
-        rr_temp_up = np.zeros((hup.nwan,hup.nwan,3),dtype=complex)
-        rr_temp_dn = np.zeros((hup.nwan,hup.nwan,3),dtype=complex)
+        rr_temp_up = np.zeros((hup.nwan,hup.nwan,3),dtype=np.csingle)
+        rr_temp_dn = np.zeros((hup.nwan,hup.nwan,3),dtype=np.csingle)
 
         
         ind_list = self.index_match(hup,hdn)
@@ -1559,10 +1559,10 @@ class ham_ops:
 #                        print( 'rs', rold, subcell, 'new', cellnew, subnew)
                         if tuple(cellnew) not in RH_new:
                             if not sparse:
-#                                RH_new[tuple(cellnew)] = [cellnew, np.zeros((NWAN,NWAN ),dtype=complex)]
-                                RH_new[tuple(cellnew)] = [cellnew, np.zeros((NWAN,NWAN ),dtype=complex), np.zeros((NWAN,NWAN,3 ),dtype=complex)]
+#                                RH_new[tuple(cellnew)] = [cellnew, np.zeros((NWAN,NWAN ),dtype=np.csingle)]
+                                RH_new[tuple(cellnew)] = [cellnew, np.zeros((NWAN,NWAN ),dtype=np.csingle), np.zeros((NWAN,NWAN,3 ),dtype=np.csingle)]
                             elif sparse:
-                                RH_new[tuple(cellnew)] = [cellnew, sps.lil_matrix((NWAN,NWAN ),dtype=complex), sps.lil_matrix((NWAN,NWAN,3 ),dtype=complex)]
+                                RH_new[tuple(cellnew)] = [cellnew, sps.lil_matrix((NWAN,NWAN ),dtype=np.csingle), sps.lil_matrix((NWAN,NWAN,3 ),dtype=np.csingle)]
 
 
                             #                        h_temp[:,:] = np.reshape(h.HR[ii,:], (h.nwan,h.nwan))
@@ -1582,16 +1582,16 @@ class ham_ops:
                             rr_temp_up[:,:,1] = np.reshape(hup.RR[iup,:,1], (hup.nwan,hup.nwan))
                             rr_temp_up[:,:,2] = np.reshape(hup.RR[iup,:,2], (hup.nwan,hup.nwan))
                         else:
-                            h_temp_up[:,:] = np.zeros((hup.nwan,hup.nwan),dtype=complex)
-                            rr_temp_up[:,:,:] = np.zeros((hup.nwan,hup.nwan,3),dtype=complex)
+                            h_temp_up[:,:] = np.zeros((hup.nwan,hup.nwan),dtype=np.csingle)
+                            rr_temp_up[:,:,:] = np.zeros((hup.nwan,hup.nwan,3),dtype=np.csingle)
                         if idn >= 0:
                             h_temp_dn[:,:] = np.reshape(hdn.HR[idn,:], (hup.nwan,hup.nwan))
                             rr_temp_dn[:,:,0] = np.reshape(hdn.RR[idn,:,0], (hup.nwan,hup.nwan))
                             rr_temp_dn[:,:,1] = np.reshape(hdn.RR[idn,:,1], (hup.nwan,hup.nwan))
                             rr_temp_dn[:,:,2] = np.reshape(hdn.RR[idn,:,2], (hup.nwan,hup.nwan))
                         else:
-                            h_temp_dn[:,:] = np.zeros((hup.nwan,hup.nwan),dtype=complex)
-                            rr_temp_dn[:,:,:] = np.zeros((hup.nwan,hup.nwan,3),dtype=complex)
+                            h_temp_dn[:,:] = np.zeros((hup.nwan,hup.nwan),dtype=np.csingle)
+                            rr_temp_dn[:,:,:] = np.zeros((hup.nwan,hup.nwan,3),dtype=np.csingle)
                             
                         h_temp[:,:] = 0.0
                         rr_temp[:,:,:] = 0.0
@@ -1605,7 +1605,7 @@ class ham_ops:
 
                                     ar = (rr_temp_up[c1,c2,:] + rr_temp_dn[c1,c2,:])/2.0
                                     dr = (rr_temp_up[c1,c2,:] - rr_temp_dn[c1,c2,:])/2.0
-                                    rtemp = np.zeros((2,2,3),dtype=complex)
+                                    rtemp = np.zeros((2,2,3),dtype=np.csingle)
                                     for jj in range(3):
                                         rtemp[:,:,jj] = s_0 * ar[jj] + dr[jj] * m
                                         
@@ -1649,11 +1649,11 @@ class ham_ops:
 
         hbig.R = np.zeros((rn, 3),dtype=float)
         if sparse:
-            hbig.HR = sps.lil_matrix((rn, NWAN**2),dtype=complex)
-            hbig.RR = sps.lil_matrix((rn, NWAN**2,3),dtype=complex)            
+            hbig.HR = sps.lil_matrix((rn, NWAN**2),dtype=np.csingle)
+            hbig.RR = sps.lil_matrix((rn, NWAN**2,3),dtype=np.csingle)            
         else:            
-            hbig.HR = np.zeros((rn, NWAN**2),dtype=complex)
-            hbig.RR = np.zeros((rn, NWAN**2,3),dtype=complex)            
+            hbig.HR = np.zeros((rn, NWAN**2),dtype=np.csingle)
+            hbig.RR = np.zeros((rn, NWAN**2,3),dtype=np.csingle)           
 
         for c,i in enumerate(RH_new):
             h = RH_new[i][1]
@@ -1823,11 +1823,11 @@ class ham_ops:
 #
 #            
 #        hbig.R = np.zeros((rn, 3),dtype=float)
-#        hbig.HR = np.zeros((rn, NWAN**2),dtype=complex)
+#        hbig.HR = np.zeros((rn, NWAN**2),dtype=np.csingle)
 #
-#        HR_temp = np.zeros((rn, NWAN,NWAN ),dtype=complex)
+#        HR_temp = np.zeros((rn, NWAN,NWAN ),dtype=np.csingle)
 #
-#        h_temp = np.zeros((h.nwan,h.nwan),dtype=complex)
+#        h_temp = np.zeros((h.nwan,h.nwan),dtype=np.csingle)
 #        
 #        for ii in range(h.R.shape[0]):
 #            rnew, subcell = conversion[ii]
@@ -1900,8 +1900,8 @@ class ham_ops:
         
 
         RH_new = {}
-        h_temp = np.zeros((h.nwan,h.nwan),dtype=complex)
-#        h_temp = sps.csc_matrix((h.nwan,h.nwan),dtype=complex)
+        h_temp = np.zeros((h.nwan,h.nwan),dtype=np.csingle)
+#        h_temp = sps.csc_matrix((h.nwan,h.nwan),dtype=np.csingle)
 
         
         subcell = np.zeros(3,dtype=int)
@@ -1934,8 +1934,8 @@ class ham_ops:
                         
 #                        print( 'rs', rold, subcell, 'new', cellnew, subnew)
                         if tuple(cellnew) not in RH_new:
-#                            RH_new[tuple(cellnew)] = [cellnew, sps.csc_matrix((NWAN,NWAN ),dtype=complex)]
-                            RH_new[tuple(cellnew)] = [cellnew, sps.lil_matrix((NWAN,NWAN ),dtype=complex)]
+#                            RH_new[tuple(cellnew)] = [cellnew, sps.csc_matrix((NWAN,NWAN ),dtype=np.csingle)]
+                            RH_new[tuple(cellnew)] = [cellnew, sps.lil_matrix((NWAN,NWAN ),dtype=np.csingle)]
 
                         t1c=time.time()
 
@@ -1969,8 +1969,8 @@ class ham_ops:
         
 
         hbig.R = np.zeros((rn, 3),dtype=float)
-#        hbig.HR = np.zeros((rn, NWAN**2),dtype=complex)
-        hbig.HR = sps.lil_matrix((rn, NWAN**2),dtype=complex)
+#        hbig.HR = np.zeros((rn, NWAN**2),dtype=np.csingle)
+        hbig.HR = sps.lil_matrix((rn, NWAN**2),dtype=np.csingle)
         
         for c,i in enumerate(RH_new):
             h = RH_new[i][1]

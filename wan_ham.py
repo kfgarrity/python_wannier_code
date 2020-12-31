@@ -120,10 +120,10 @@ class wan_ham:
 
         tot = self.nwan**2 * self.nr
         self.H_int = np.zeros((tot,5),dtype=int)
-        self.H_val = np.zeros(tot,dtype=complex) 
+        self.H_val = np.zeros(tot,dtype=np.csingle) 
 
         self.R_int = np.zeros((tot,5),dtype=int)
-        self.R_val = np.zeros((tot, 3),dtype=complex) 
+        self.R_val = np.zeros((tot, 3),dtype=np.csingle) 
 
 
 
@@ -191,8 +191,8 @@ class wan_ham:
 
         print('H size', ix,iy,iz,self.nwan,self.nwan)
         
-        self.H = np.zeros((ix,iy,iz,self.nwan,self.nwan),dtype=complex)
-        self.R_mat = np.zeros((ix,iy,iz,self.nwan,self.nwan,3),dtype=complex)
+        self.H = np.zeros((ix,iy,iz,self.nwan,self.nwan),dtype=np.csingle)
+        self.R_mat = np.zeros((ix,iy,iz,self.nwan,self.nwan,3),dtype=np.csingle)
 
         self.ind_dict = {}
         for i in range(self.H_val.shape[0]):
@@ -210,8 +210,8 @@ class wan_ham:
 
         nr = ix*iy*iz
         self.R = np.zeros((nr,3),dtype=float)
-        self.HR = np.zeros((nr,self.nwan**2),dtype=complex)
-        self.RR = np.zeros((nr,self.nwan**2,3),dtype=complex)
+        self.HR = np.zeros((nr,self.nwan**2),dtype=np.csingle)
+        self.RR = np.zeros((nr,self.nwan**2,3),dtype=np.csingle)
 
         c=0
         for x in range(nx1, nx2+1):
@@ -270,7 +270,7 @@ class wan_ham:
 
         tot = self.nwan**2 * self.nr
         self.H_int = np.zeros((tot,5),dtype=int)
-        self.H_val = np.zeros(tot,dtype=complex) 
+        self.H_val = np.zeros(tot,dtype=np.csingle) 
 
 #        self.S_val = np.zeros(tot,dtype=float) 
         
@@ -338,7 +338,7 @@ class wan_ham:
 
         print('H size', ix,iy,iz,self.nwan,self.nwan)
         
-        self.H = np.zeros((ix,iy,iz,self.nwan,self.nwan),dtype=complex)
+        self.H = np.zeros((ix,iy,iz,self.nwan,self.nwan),dtype=np.csingle)
 #        self.S = np.zeros((ix,iy,iz,self.nwan,self.nwan),dtype=float)
 
         self.ind_dict = {}
@@ -360,9 +360,9 @@ class wan_ham:
 
 #        Skk = np.zeros((self.nwan,self.nwan),dtype=float)
 #        Skk2 = np.zeros((self.nwan,self.nwan),dtype=float)        
-#        Hkk = np.zeros((self.nwan,self.nwan),dtype=complex)#
+#        Hkk = np.zeros((self.nwan,self.nwan),dtype=np.csingle)#
 
-#        Hko = np.zeros(self.H.shape,dtype=complex)
+#        Hko = np.zeros(self.H.shape,dtype=np.csingle)
         
 #        for k1 in range(0,Sk.shape[0]):
 #            for k2 in range(0,Sk.shape[1]):
@@ -390,7 +390,7 @@ class wan_ham:
 
         nr = ix*iy*iz
         self.R = np.zeros((nr,3),dtype=float)
-        self.HR = np.zeros((nr,self.nwan**2),dtype=complex)
+        self.HR = np.zeros((nr,self.nwan**2),dtype=np.csingle)
 #        self.SR = np.zeros((nr,self.nwan**2),dtype=float)
 
         c=0
@@ -409,21 +409,21 @@ class wan_ham:
 
         self.B = zeros((3,3))
         self.R_int = self.H_int
-        self.R_val = zeros( (np.shape(self.Hval)[0], 3), dtype=complex)
+        self.R_val = zeros( (np.shape(self.Hval)[0], 3), dtype=np.csingle)
 
         t = np.shape(self.H)
-        self.R_mat = np.zeros( (t[0],t[1],t[2],t[3],t[4],3), dtype=complex)
+        self.R_mat = np.zeros( (t[0],t[1],t[2],t[3],t[4],3), dtype=np.csingle)
         t = np.shape(self.HR)
-        self.RR = np.zeros((t[0], t[1], 3),dtype=complex)
+        self.RR = np.zeros((t[0], t[1], 3),dtype=np.csingle)
         
             
     def trim(self, val=5e-3):
 
         Rnew = np.zeros(self.R.shape,dtype=float)
         if self.sparse:
-            HRnew = sps.lil_matrix(self.HR.shape,dtype=complex)
+            HRnew = sps.lil_matrix(self.HR.shape,dtype=np.csingle)
         else:
-            HRnew = np.zeros(self.HR.shape,dtype=complex)
+            HRnew = np.zeros(self.HR.shape,dtype=np.csingle)
             
         c=0
 
@@ -453,14 +453,14 @@ class wan_ham:
 ###
 ###        nr = self.R.shape[0]
 ###        
-###        hk = np.zeros((self.nwan,self.nwan),dtype=complex)
-###        sk = np.zeros((self.nwan,self.nwan),dtype=complex)
+###        hk = np.zeros((self.nwan,self.nwan),dtype=np.csingle)
+###        sk = np.zeros((self.nwan,self.nwan),dtype=np.csingle)
 ###        
 ###        kmat = np.tile(k, (nr,1))
 ###        exp_ikr = np.exp(-1.0j*2*np.pi* np.sum(kmat*self.R, 1))
 ###
-###        temp = np.zeros(self.nwan**2, dtype=complex)
-###        tempS = np.zeros(self.nwan**2, dtype=complex)
+###        temp = np.zeros(self.nwan**2, dtype=np.csingle)
+###        tempS = np.zeros(self.nwan**2, dtype=np.csingle)
 ###        for i in range(nr):
 ###            temp += exp_ikr[i]*self.HR[i,:]
 ####            tempS += exp_ikr[i]*self.SR[i,:]            
@@ -487,7 +487,7 @@ class wan_ham:
         
         nr = self.R.shape[0]
         
-        hk = np.zeros((self.nwan,self.nwan),dtype=complex)
+        hk = np.zeros((self.nwan,self.nwan),dtype=np.csingle)
         
         
         kmat = np.tile(k, (nr,1))
@@ -495,7 +495,7 @@ class wan_ham:
         
         exp_ikr = np.exp(1.0j*2*np.pi* np.sum(kmat*self.R, 1))
 
-        temp = np.zeros(self.nwan**2, dtype=complex)
+        temp = np.zeros(self.nwan**2, dtype=np.csingle)
         for i in range(nr):
             temp += exp_ikr[i]*self.HR[i,:]
 
@@ -528,7 +528,7 @@ class wan_ham:
         
         nr = self.R.shape[0]
         
-        hk = sps.csc_matrix((self.nwan,self.nwan),dtype=complex)
+        hk = sps.csc_matrix((self.nwan,self.nwan),dtype=np.csingle)
         
         
         kmat = np.tile(k, (nr,1))
@@ -538,7 +538,7 @@ class wan_ham:
 
         exp_ikr = np.exp(1.0j*2*np.pi* np.sum(kmat*self.R, 1))
 
-        temp = sps.csc_matrix((1,self.nwan**2), dtype=complex)
+        temp = sps.csc_matrix((1,self.nwan**2), dtype=np.csingle)
         for i in range(nr):
 #            print('sps.csr_matrix(self.HR[i,:]).shape',sps.csc_matrix(self.HR[i,:]).shape)
 #            print(exp_ikr[i])
