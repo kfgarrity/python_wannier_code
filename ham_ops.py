@@ -747,6 +747,20 @@ class ham_ops:
         return t
 
 
+    def generate_kgrid_gamma(self, grid):
+
+        g1 = np.linspace(-0.25, 0.25, grid[0])
+        g2 = np.linspace(-0.25, 0.25, grid[1])
+        g3 = np.linspace(-0.25, 0.25, grid[2])
+        t = []
+        for i in range(grid[0]):
+            for j in range(grid[1]):
+                for k in range(grid[2]):
+                    t.append([g1[i] , g2[j], g3[k]])
+        
+        return t
+    
+
     def fermi_surf_2d(self, ham, fermi, origin, k1, k2, nk1, nk2, sig):
         K = np.zeros((nk1,nk2, 3),dtype=float)
 
@@ -945,11 +959,16 @@ class ham_ops:
         return IMAGE, DIRECTGAP, VAL, [min_gap, min_cond - max_val], weyl_points, dirac_points, higher_order_points
 
     
-    def dos(self,ham, grid, proj=None, fermi=0.0, xrange=None, nenergy=100, sig = 0.02,  pdf="dos.pdf", show=False):
+    def dos(self,ham, grid, proj=None, fermi=0.0, xrange=None, nenergy=100, sig = 0.02,  pdf="dos.pdf", show=False, gamma_mode=False):
 
         plt.clf()
-        
-        kgrid = self.generate_kgrid(grid)
+
+        if gamma_mode:
+            kgrid = self.generate_kgrid_gamma(grid)
+
+        else: #normal
+            kgrid = self.generate_kgrid(grid)
+            
         nk = len(kgrid)
         nwan = ham.nwan
         
