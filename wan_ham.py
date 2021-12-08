@@ -512,6 +512,7 @@ class wan_ham:
 #        print('TIME eig dense', time.time()-tb)
 
         if proj is not None:
+
             p = np.real(np.sum(vect[proj,:]*np.conj(vect[proj, :]), 0))
         else:
             p = np.ones(val.shape)
