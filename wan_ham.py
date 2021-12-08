@@ -407,9 +407,9 @@ class wan_ham:
         if c != nr:
             print('errror ', c, nr)
 
-        self.B = zeros((3,3))
+        self.B = np.zeros((3,3))
         self.R_int = self.H_int
-        self.R_val = zeros( (np.shape(self.Hval)[0], 3), dtype=np.csingle)
+        self.R_val = np.zeros( (np.shape(self.H_val)[0], 3), dtype=np.csingle)
 
         t = np.shape(self.H)
         self.R_mat = np.zeros( (t[0],t[1],t[2],t[3],t[4],3), dtype=np.csingle)

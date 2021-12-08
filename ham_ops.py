@@ -234,11 +234,15 @@ class ham_ops:
 
         m = np.max(np.max(image))
         plt.imshow(image, aspect="auto", extent=limits, vmax = m*0.6)
+#        plt.imshow(image, aspect="equal", extent=limits, vmax = m*0.6)
 
         plt.xlim([limits[0], limits[1]])
 
         ax.set_xticklabels([])
         ax.set_xticks([])
+
+        plt.yticks(fontsize=12)
+        plt.ylabel("Energy - E$_F$ (eV)", fontsize=14)
 
         plt.tight_layout()
         
@@ -535,7 +539,7 @@ class ham_ops:
             for c,n in enumerate(names):
                 pos = self.num_k * c
                 
-                plt.text(pos-1.5,yrange[0]-d , n)
+                plt.text(pos-3.0,yrange[0]-d*1.5 , n, fontsize=24)
                 plt.plot([pos, pos],[yrange[0], yrange[1]], '--', color='lightgrey',linewidth=0.5, zorder=1)
         
     
@@ -639,18 +643,22 @@ class ham_ops:
 
 
         plt.xlim([x[0], x[-1]])
-    
+        plt.yticks(fontsize=24)
+        plt.ylabel("Energy - E$_F$ (eV)", fontsize=26)
+
         d = (yrange[1]-yrange[0])*0.05
 
         ax.set_xticklabels([])
         ax.set_xticks([])
 
 
+
+
         if colorbar:
-            plt.colorbar()
-        
+            cbar = plt.colorbar()
+            cbar.set_ticks([])
 
-
+        plt.tight_layout()
                 
         plt.savefig(pdfname)
         if show:
@@ -1182,7 +1190,7 @@ class ham_ops:
         r2 = np.array(np.round(h2.R),dtype=int)        
 
         def ind(r):
-            return r[:,0] * 10**6 + r[:,1]*10**3 + r[:,2]
+            return r[:,0] * 10**8 + r[:,1]*10**4 + r[:,2]
 
         indr1=ind(r1)
         indr2=ind(r2)
@@ -1210,7 +1218,7 @@ class ham_ops:
             else:
                 i2 = -1
             ind_list.append([i1,i2])
-
+#            print("ind_list ", [i1,i2])
         return ind_list
 
     
@@ -1261,28 +1269,28 @@ class ham_ops:
         
         newh.R = np.zeros((Rl,3), dtype=float)
         if sparse:
-            newh.HR = sps.lil_matrix((Rl, (newh.nwan)**2),dtype=np.csingle)
-            h_temp =  sps.lil_matrix((newh.nwan,newh.nwan),dtype=np.csingle)
+            newh.HR = sps.lil_matrix((Rl, (newh.nwan)**2),dtype=complex)
+            h_temp =  sps.lil_matrix((newh.nwan,newh.nwan),dtype=complex)
 
-            h1_temp = sps.lil_matrix((nw,nw),dtype=np.csingle)
-            h2_temp = sps.lil_matrix((nw,nw),dtype=np.csingle)
+            h1_temp = sps.lil_matrix((nw,nw),dtype=complex)
+            h2_temp = sps.lil_matrix((nw,nw),dtype=complex)
 
-            rr1_temp = sps.lil_matrix((nw,nw,3),dtype=np.csingle)
-            rr2_temp = sps.lil_matrix((nw,nw,3),dtype=np.csingle)
+            rr1_temp = sps.lil_matrix((nw,nw,3),dtype=complex)
+            rr2_temp = sps.lil_matrix((nw,nw,3),dtype=complex)
 
-            newh.RR = sps.lil_matrix((Rl, (newh.nwan)**2, 3),dtype=np.csingle)
+            newh.RR = sps.lil_matrix((Rl, (newh.nwan)**2, 3),dtype=complex)
 
             
         else:
-            newh.HR = np.zeros((Rl, (newh.nwan)**2),dtype=np.csingle)
-            newh.RR = np.zeros((Rl, (newh.nwan)**2, 3),dtype=np.csingle)
+            newh.HR = np.zeros((Rl, (newh.nwan)**2),dtype=complex)
+            newh.RR = np.zeros((Rl, (newh.nwan)**2, 3),dtype=complex)
 
-            h_temp = np.zeros((newh.nwan,newh.nwan),dtype=np.csingle)
-            h1_temp = np.zeros((nw,nw),dtype=np.csingle)
-            h2_temp = np.zeros((nw,nw),dtype=np.csingle)
+            h_temp = np.zeros((newh.nwan,newh.nwan),dtype=complex)
+            h1_temp = np.zeros((nw,nw),dtype=complex)
+            h2_temp = np.zeros((nw,nw),dtype=complex)
 
-            rr1_temp = np.zeros((nw,nw,3),dtype=np.csingle)
-            rr2_temp = np.zeros((nw,nw,3),dtype=np.csingle)
+            rr1_temp = np.zeros((nw,nw,3),dtype=complex)
+            rr2_temp = np.zeros((nw,nw,3),dtype=complex)
             
 
 
@@ -1301,10 +1309,10 @@ class ham_ops:
                     rr1_temp[:,:,1] = sps.lil_matrix.reshape(h1.RR[i1,:,1], (nw,nw))
                     rr1_temp[:,:,2] = sps.lil_matrix.reshape(h1.RR[i1,:,2], (nw,nw))
                 else:
-                    h1_temp[:,:] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
-                    r1_temp[:,:,0] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
-                    r1_temp[:,:,1] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
-                    r1_temp[:,:,2] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
+                    h1_temp[:,:] = sps.lil_matrix( (nw,nw),dtype=complex)
+                    rr1_temp[:,:,0] = sps.lil_matrix( (nw,nw),dtype=complex)
+                    rr1_temp[:,:,1] = sps.lil_matrix( (nw,nw),dtype=complex)
+                    rr1_temp[:,:,2] = sps.lil_matrix( (nw,nw),dtype=complex)
 
 
                 if i2>=0:
@@ -1314,10 +1322,10 @@ class ham_ops:
                     rr2_temp[:,:,1] = sps.lil_matrix.reshape(h2.RR[i2,:,1], (nw,nw))
                     rr2_temp[:,:,2] = sps.lil_matrix.reshape(h2.RR[i2,:,2], (nw,nw))
                 else:
-                    h2_temp[:,:] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
-                    r2_temp[:,:,0] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
-                    r2_temp[:,:,1] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
-                    r2_temp[:,:,2] = sps.lil_matrix( (nw,nw),dtype=np.csingle)
+                    h2_temp[:,:] = sps.lil_matrix( (nw,nw),dtype=complex)
+                    rr2_temp[:,:,0] = sps.lil_matrix( (nw,nw),dtype=complex)
+                    rr2_temp[:,:,1] = sps.lil_matrix( (nw,nw),dtype=complex)
+                    rr2_temp[:,:,2] = sps.lil_matrix( (nw,nw),dtype=complex)
 
             else:
                 if i1>=0:
@@ -1326,10 +1334,10 @@ class ham_ops:
                     rr1_temp[:,:,1] = np.reshape(h1.RR[i1,:,1], (nw,nw))
                     rr1_temp[:,:,2] = np.reshape(h1.RR[i1,:,2], (nw,nw))
                 else:
-                    h1_temp[:,:] = np.zeros( (nw,nw),dtype=np.csingle)
-                    rr1_temp[:,:,0] = np.zeros( (nw,nw),dtype=np.csingle)
-                    rr1_temp[:,:,1] = np.zeros( (nw,nw),dtype=np.csingle)
-                    rr1_temp[:,:,2] = np.zeros( (nw,nw),dtype=np.csingle)
+                    h1_temp[:,:] = np.zeros( (nw,nw),dtype=complex)
+                    rr1_temp[:,:,0] = np.zeros( (nw,nw),dtype=complex)
+                    rr1_temp[:,:,1] = np.zeros( (nw,nw),dtype=complex)
+                    rr1_temp[:,:,2] = np.zeros( (nw,nw),dtype=complex)
 
                 if i2>=0:
                     h2_temp[:,:] = np.reshape(h2.HR[i2,:], (nw,nw))
@@ -1337,15 +1345,25 @@ class ham_ops:
                     rr2_temp[:,:,1] = np.reshape(h2.RR[i2,:,1], (nw,nw))
                     rr2_temp[:,:,2] = np.reshape(h2.RR[i2,:,2], (nw,nw))
                 else:
-                    h2_temp[:,:] = np.zeros( (nw,nw),dtype=np.csingle)
-                    rr2_temp[:,:,0] = np.zeros( (nw,nw),dtype=np.csingle)
-                    rr2_temp[:,:,1] = np.zeros( (nw,nw),dtype=np.csingle)
-                    rr2_temp[:,:,2] = np.zeros( (nw,nw),dtype=np.csingle)
+                    h2_temp[:,:] = np.zeros( (nw,nw),dtype=complex)
+                    rr2_temp[:,:,0] = np.zeros( (nw,nw),dtype=complex)
+                    rr2_temp[:,:,1] = np.zeros( (nw,nw),dtype=complex)
+                    rr2_temp[:,:,2] = np.zeros( (nw,nw),dtype=complex)
 
                 
             h_temp[:,:] = h1_temp*fraction[0] + fraction[1]*h2_temp*percent
             r_temp = rr1_temp*fraction[0] + fraction[1]*rr2_temp*percent
-            
+
+#            if i == 0 or i == 1:
+#                print("xxx")
+#                print(i2, i2)
+#                print("h1t")
+#                print(h1_temp)
+#                print("h2t")
+#                print(h2_temp)
+#                print("ht")
+#                print(h_temp)
+#                print(h1.R[i1,:] , " c " ,h1.R[i1,:])
 #            for ii in range(nw):
 #                for jj in range(nw):
 #                    h[ii*2,jj*2] = h1[ii,jj]
@@ -1600,7 +1618,7 @@ class ham_ops:
         
         def plus_r(rold, subcell):
             rnew = subcell + rold
-            cellnew = rnew/ supercell   #this is integer division
+            cellnew = rnew // supercell   #this is integer division
             subnew  = rnew%supercell
 
             return cellnew,subnew
@@ -1777,7 +1795,7 @@ class ham_ops:
 
         print( 'supercell plot_eigenvector', supercell)
         
-        nwan_small = ham.nwan / np.prod(supercell)
+        nwan_small = int(ham.nwan / np.prod(supercell))
         pos_orig = np.array(pos_orig)
 
         plt.clf()
@@ -1794,7 +1812,7 @@ class ham_ops:
 
             if sparse:
                 print( 'using sparse')
-                if type(nocc) == int:
+                if type(nocc) == int or type(nocc) == np.int64:
                     val, vect, _ = ham.solve_ham_sparse(kpoint, nocc, fermi=fermi, proj=None)
                 else:
                     val, vect, _ = ham.solve_ham_sparse(kpoint, len(nocc), fermi=fermi, proj=None)
@@ -1812,7 +1830,7 @@ class ham_ops:
         if sparse:
             v2 = np.sum((vect[:,:]*vect[:,:].conj()).real, 1)
         else:
-            if type(nocc) == int:
+            if type(nocc) == int or  type(nocc) == np.int64:
                 v2 = (vect[:,nocc]*vect[:,nocc].conj()).real
 
             else:
@@ -2136,7 +2154,7 @@ class ham_ops:
                         c += 1
 
                     elif o == "d":
-                        if (atom, "p") not in projection_dict:
+                        if (atom, "d") not in projection_dict:
                             projection_dict[(atom, "d")] = []
                             projection_dict[(atom, "dz2")] = []
                             projection_dict[(atom, "dxz")] = []
@@ -2144,34 +2162,47 @@ class ham_ops:
                             projection_dict[(atom, "dx2y2")] = []
                             projection_dict[(atom, "dxy")] = []
 
-                            projection_dict[(atom, "d")].append(c)
-                            projection_dict[(atom, "dz2")].append(c)
-                            c += 1
+                        projection_dict[(atom, "d")].append(c)
+                        projection_dict[(atom, "dz2")].append(c)
+                        c += 1
 
-                            projection_dict[(atom, "d")].append(c)
-                            projection_dict[(atom, "dxz")].append(c)
-                            c += 1
+                        projection_dict[(atom, "d")].append(c)
+                        projection_dict[(atom, "dxz")].append(c)
+                        c += 1
 
-                            projection_dict[(atom, "d")].append(c)
-                            projection_dict[(atom, "dyz")].append(c)
-                            c += 1
+                        projection_dict[(atom, "d")].append(c)
+                        projection_dict[(atom, "dyz")].append(c)
+                        c += 1
 
-                            projection_dict[(atom, "d")].append(c)
-                            projection_dict[(atom, "dx2y2")].append(c)
-                            c += 1
+                        projection_dict[(atom, "d")].append(c)
+                        projection_dict[(atom, "dx2y2")].append(c)
+                        c += 1
 
-                            projection_dict[(atom, "d")].append(c)
-                            projection_dict[(atom, "dxy")].append(c)
-                            c += 1
+                        projection_dict[(atom, "d")].append(c)
+                        projection_dict[(atom, "dxy")].append(c)
+                        c += 1
 
         nwan = c
+
+#        if so:
+#            for (atom, orb) in projection_dict.keys():
+#                new_ind = []
+#                for i in projection_dict[(atom, orb)]:
+#                    new_ind.append(i+nwan)
+#                projection_dict[(atom, orb)] += new_ind
+#            nwan = nwan * 2
+
         if so:
             for (atom, orb) in projection_dict.keys():
                 new_ind = []
                 for i in projection_dict[(atom, orb)]:
-                    new_ind.append(i+nwan)
-                projection_dict[(atom, orb)] += new_ind
+                    new_ind.append(i * 2)
+                    new_ind.append(i*2+1)
+
+                    #                    new_ind.append(i+nwan)
+                projection_dict[(atom, orb)] = new_ind
             nwan = nwan * 2
+
         print( "nwan = ", nwan)
         
         inds = []
