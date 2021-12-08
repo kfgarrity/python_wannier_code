@@ -770,30 +770,57 @@ class ham_ops:
     
 
     def fermi_surf_2d(self, ham, fermi, origin, k1, k2, nk1, nk2, sig):
-        K = np.zeros((nk1,nk2, 3),dtype=float)
+        K = np.zeros((nk1+1,nk2+1, 3),dtype=float)
 
-        k1=np.array(k1,dtype=float)
-        k2=np.array(k2,dtype=float)
+        k1=np.array(k1+1,dtype=float)
+        k2=np.array(k2+1,dtype=float)
 
-        for c1 in range(nk1):
-            for c2 in range(nk2):
+        for c1 in range(nk1+1):
+            for c2 in range(nk2+1):
                 K[c1,c2,:] = origin + k1 * float(c1)/float(nk1) + k2 * float(c2)/float(nk2)
 
 
-#        VALS = np.zeros((nk1,nk2, ham.nwan))
-        IMAGE = np.zeros((nk1, nk2))
+        VALS = np.zeros((nk1+1,nk2+1, ham.nwan))
+        IMAGE = np.zeros((nk1+1, nk2+1))
 
-        for c1 in range(nk1):
-            for c2 in range(nk2):
+        for c1 in range(nk1+1):
+            for c2 in range(nk2+1):
                 k = K[c1,c2,:]
                 val, vect,p = ham.solve_ham(k,proj=None)
 
-                #VALS[nk1, nk2, :] = val
+                VALS[nk1+1, nk2+1, :] = val
 
                 #                IMAGE[c1,c2] = np.sum(np.abs(1/(val - fermi + sig)))
                 IMAGE[c1,c2] = np.sum( np.exp( -(val - fermi)**2 / sig**2))
 
-        return IMAGE
+
+
+        return IMAGE, VALS
+
+    def fermi_surf_points_2d(self, VALS, fermi):
+        v = VALS - fermi
+        points = []
+        
+        for c1 in range(nk1+1):
+            for c2 in range(nk2+1):
+                c1p = c1+1
+                c2p = c2+1
+                if c1p <= nk1+1:
+                    for n = 1:ham.nwan:
+                        if (v[c1,c2, n] < 0.0 and v[c1p,c2, n] > 0.0) or (v[c1,c2, n] > 0.0 and v[c1p,c2, n] < 0.0):
+                            x = -v[c1,c2, n] / (v[c1p,c2, n] - v[c1,c2, n])
+                            points.append([float(c1)+x, float(c2)])
+
+                if c2p <= nk2+1:
+                    for n = 1:ham.nwan:
+                        if (v[c1,c2, n] < 0.0 and v[c1,c2p, n] > 0.0) or (v[c1,c2, n] > 0.0 and v[c1,c2p, n] < 0.0):
+                            x = -v[c1,c2, n] / (v[c1,c2p, n] - v[c1,c2, n])
+                            points.append([float(c1), float(c2)+x])
+        return points
+
+
+
+
 
     def get_gap_points(self, directgap, thresh=0.0005, val=None):
         (n1,n2,n3) = np.shape(directgap)
